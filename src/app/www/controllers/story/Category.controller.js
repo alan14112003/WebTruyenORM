@@ -55,26 +55,16 @@ const CategoryController = {
       let data
 
       if (Array.isArray(body)) {
+        body.forEach((category) => {
+          category.slug = slugifyConfig(category.name)
+        })
+
         data = await Category.bulkCreate(body, {
           transaction: trx,
         })
-
-        data = await Promise.all(
-          data.map(async (item) => {
-            item.slug = slugifyConfig(item.name) + `-${item.id}`
-            await item.save({
-              transaction: trx,
-            })
-            return item
-          })
-        )
       } else {
+        body.slug = slugifyConfig(body.name)
         data = await Category.create(body, {
-          transaction: trx,
-        })
-        data.slug = slugifyConfig(data.name) + `-${data.id}`
-
-        await data.save({
           transaction: trx,
         })
       }
@@ -96,7 +86,7 @@ const CategoryController = {
     try {
       const id = req.params.id
       const category = req.body
-      category.slug = slugifyConfig(category.name) + `-${id}`
+      category.slug = slugifyConfig(category.name)
 
       const [updatedCount] = await Category.update(category, {
         where: {

@@ -14,10 +14,6 @@ const Category = SequelizeConfig.define(
     },
     slug: {
       type: DataTypes.STRING,
-      set(val) {
-        this.setDataValue('slug', val)
-        console.log('id: ', this.getDataValue('id'))
-      },
       unique: true,
     },
   },
