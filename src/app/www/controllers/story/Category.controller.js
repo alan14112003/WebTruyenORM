@@ -95,7 +95,8 @@ const CategoryController = {
       })
 
       if (updatedCount) {
-        RedisConfig.delWithPrefix(RedisKeyName)
+        RedisConfig.del(REDIS_KEY.all)
+        RedisConfig.del(`${REDIS_KEY.get}.${id}`)
       }
 
       return res.status(200).json(updatedCount)
