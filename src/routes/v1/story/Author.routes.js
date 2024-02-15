@@ -16,35 +16,25 @@ const PERMISSION_CODE = {
   delete: PERMISSION_NAME + 'delete',
 }
 
-AuthorRouter.get(
-  '/',
-  // AuthMiddleware.checkPermission(PERMISSION_CODE.all),
-  AuthorController.all
-)
+AuthorRouter.get('/', AuthorController.all)
 
-AuthorRouter.get(
-  '/:id',
-  // AuthMiddleware.checkPermission(PERMISSION_CODE.get),
-  AuthorController.get
-)
+AuthorRouter.get('/:id', AuthorController.get)
 
 AuthorRouter.post(
   '/',
-  // AuthMiddleware.checkPermission(PERMISSION_CODE.insert),
   ValidatorMiddleware.validateBody(AuthorInsertValidator),
   AuthorController.insert
 )
 
 AuthorRouter.put(
   '/:id',
-  // AuthMiddleware.checkPermission(PERMISSION_CODE.update),
   ValidatorMiddleware.validateBody(AuthorUpdateValidator),
   AuthorController.update
 )
 
 AuthorRouter.delete(
   '/:id',
-  // AuthMiddleware.checkPermission(PERMISSION_CODE.delete),
+  AuthMiddleware.checkPermission(PERMISSION_CODE.delete),
   AuthorController.delete
 )
 

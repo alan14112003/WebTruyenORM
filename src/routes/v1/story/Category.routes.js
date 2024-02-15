@@ -16,35 +16,27 @@ const PERMISSION_CODE = {
   delete: PERMISSION_NAME + 'delete',
 }
 
-CategoryRouter.get(
-  '/',
-  // AuthMiddleware.checkPermission(PERMISSION_CODE.all),
-  CategoryController.all
-)
+CategoryRouter.get('/', CategoryController.all)
 
-CategoryRouter.get(
-  '/:id',
-  // AuthMiddleware.checkPermission(PERMISSION_CODE.get),
-  CategoryController.get
-)
+CategoryRouter.get('/:id', CategoryController.get)
 
 CategoryRouter.post(
   '/',
-  // AuthMiddleware.checkPermission(PERMISSION_CODE.insert),
+  AuthMiddleware.checkPermission(PERMISSION_CODE.insert),
   ValidatorMiddleware.validateBody(CategoryInsertValidator),
   CategoryController.insert
 )
 
 CategoryRouter.put(
   '/:id',
-  // AuthMiddleware.checkPermission(PERMISSION_CODE.update),
+  AuthMiddleware.checkPermission(PERMISSION_CODE.update),
   ValidatorMiddleware.validateBody(CategoryUpdateValidator),
   CategoryController.update
 )
 
 CategoryRouter.delete(
   '/:id',
-  // AuthMiddleware.checkPermission(PERMISSION_CODE.delete),
+  AuthMiddleware.checkPermission(PERMISSION_CODE.delete),
   CategoryController.delete
 )
 
