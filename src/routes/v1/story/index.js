@@ -5,15 +5,7 @@ import AuthorRouter from './Author.routes'
 // lấy ra bộ định tuyến
 const StoryPackageRouter = express.Router()
 
-StoryPackageRouter.use(
-  '/categories',
-  // , AuthMiddleware.checkLogin
-  CategoryRouter
-)
+StoryPackageRouter.use('/categories', AuthMiddleware.checkAuth, CategoryRouter)
 
-StoryPackageRouter.use(
-  '/authors',
-  // , AuthMiddleware.checkLogin
-  AuthorRouter
-)
+StoryPackageRouter.use('/authors', AuthMiddleware.checkAuth, AuthorRouter)
 export default StoryPackageRouter
