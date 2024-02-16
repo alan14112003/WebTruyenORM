@@ -1,4 +1,3 @@
-// user.js
 import { DataTypes } from 'sequelize'
 import Role from './Role.model'
 import SequelizeConfig from '@/config/Sequelize.config'
@@ -58,10 +57,5 @@ const User = SequelizeConfig.define(
     timestamps: true,
   }
 )
-
-User.belongsTo(Role, {
-  foreignKey: 'roleCode',
-  targetKey: 'code',
-})
 
 export default User

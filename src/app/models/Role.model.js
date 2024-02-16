@@ -1,4 +1,3 @@
-// role.js
 import SequelizeConfig from '@/config/Sequelize.config'
 import { DataTypes } from 'sequelize'
 

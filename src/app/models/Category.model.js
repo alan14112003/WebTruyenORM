@@ -1,4 +1,3 @@
-// permission.js
 import { DataTypes } from 'sequelize'
 import SequelizeConfig from '@/config/Sequelize.config'
 

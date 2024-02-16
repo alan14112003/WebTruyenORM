@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import Router from './routes'
 import initSocket from './messages'
+import Relationship from './app/models/Relationship'
 
 // Cấu hình dotenv
 configDotenv()
