@@ -4,10 +4,12 @@ import express from 'express'
 // lấy ra bộ định tuyến
 const UploadRouter = express.Router()
 
+UploadRouter.post('/destroy/single', UploadController.deleteSingleFile)
+
 UploadRouter.post(
-  '/images/single',
-  MulterConfig.single('image'),
-  UploadController.uploadSingleImage
+  '/single',
+  MulterConfig.single('file'),
+  UploadController.uploadSingleFile
 )
 
 export default UploadRouter

@@ -11,6 +11,12 @@ const UploadUtil = {
       public_id: uploadResponse.public_id,
     }
   },
+
+  deleteSingleFile: async (public_id) => {
+    const deleteResponse = await CloudinaryConfig.uploader.destroy(public_id)
+
+    return deleteResponse
+  },
 }
 
 export default UploadUtil
