@@ -20,6 +20,8 @@ CategoryRouter.get('/', CategoryController.all)
 
 CategoryRouter.get('/:id', CategoryController.get)
 
+CategoryRouter.use(AuthMiddleware.checkAuth)
+
 CategoryRouter.post(
   '/',
   AuthMiddleware.checkPermission(PERMISSION_CODE.insert),

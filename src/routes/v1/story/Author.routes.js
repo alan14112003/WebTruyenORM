@@ -32,6 +32,8 @@ AuthorRouter.put(
   AuthorController.update
 )
 
+AuthorRouter.use(AuthMiddleware.checkAuth)
+
 AuthorRouter.delete(
   '/:id',
   AuthMiddleware.checkPermission(PERMISSION_CODE.delete),
