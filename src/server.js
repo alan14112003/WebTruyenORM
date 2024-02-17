@@ -7,6 +7,7 @@ import cors from 'cors'
 import Router from './routes'
 import initSocket from './messages'
 import Relationship from './app/models/Relationship'
+import initCron from './cron'
 
 // Cấu hình dotenv
 configDotenv()
@@ -41,4 +42,8 @@ const server = app.listen(process.env.PORT || 80, () => {
   console.log(`Server đang chạy ở cổng ${process.env.PORT}`)
 })
 
+// khởi động socket
 initSocket(server)
+
+// khởi động cronjob
+initCron()
