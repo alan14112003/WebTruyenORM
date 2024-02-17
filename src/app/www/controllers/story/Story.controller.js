@@ -14,6 +14,47 @@ const REDIS_KEY = {
   get: RedisKeyName + 'get',
 }
 
+const updateCategories = async (categories, storyId, trx) => {
+  const oldCategories = await CategoryStory.findAll({
+    where: {
+      StoryId: storyId,
+    },
+    attributes: ['CategoryId'],
+    raw: true,
+  })
+
+  const oldCategoriesArr = oldCategories.map((category) => category.CategoryId)
+
+  const catIns = categories.filter(
+    (element) => !oldCategoriesArr.includes(element)
+  )
+
+  const catDel = oldCategoriesArr.filter(
+    (element) => !categories.includes(element)
+  )
+
+  const promises = []
+  if (catIns.length > 0) {
+    promises.push(
+      CategoryStory.bulkCreate(
+        catIns.map((catId) => ({ StoryId: storyId, CategoryId: catId })),
+        { transaction: trx }
+      )
+    )
+  }
+
+  if (catDel.length > 0) {
+    promises.push(
+      CategoryStory.destroy({
+        where: { CategoryId: { [Op.in]: catDel } },
+        transaction: trx,
+      })
+    )
+  }
+
+  await Promise.all(promises)
+}
+
 const StoryController = {
   all: async (req, res, next) => {
     try {
@@ -178,24 +219,42 @@ const StoryController = {
   },
 
   update: async (req, res, next) => {
-    try {
-      const id = req.params.id
-      const category = req.body
-      category.slug = slugifyConfig(category.name)
+    const trx = await SequelizeConfig.transaction()
 
-      const [updatedCount] = await Category.update(category, {
+    try {
+      const { id } = req.params
+      const body = req.body
+
+      const story = await Story.findByPk(id)
+
+      if (!story) {
+        return res.status(404).json('story not found')
+      }
+
+      if (body.name) {
+        body.slug = slugifyConfig(body.name)
+      }
+
+      const [updatedCount] = await Story.update(body, {
         where: {
           id: id,
         },
+        transaction: trx,
       })
 
+      if (body.categories) {
+        await updateCategories(body.categories, id, trx)
+      }
+
       if (updatedCount) {
-        RedisConfig.del(REDIS_KEY.all)
+        RedisConfig.delWithPrefix(REDIS_KEY.all)
         RedisConfig.del(`${REDIS_KEY.get}.${id}`)
       }
 
-      return res.status(200).json(updatedCount)
+      await trx.commit()
+      return res.status(200).json('success')
     } catch (error) {
+      await trx.rollback()
       next(error)
     }
   },

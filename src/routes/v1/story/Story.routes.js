@@ -2,6 +2,7 @@ import express from 'express'
 import StoryController from '@/app/www/controllers/story/Story.controller'
 import ValidatorMiddleware from '@/app/www/middleware/Validator.middleware'
 import StoryInsertValidator from '@/app/www/validators/body/story/Insert.validator'
+import StoryUpdateValidator from '@/app/www/validators/body/story/Update.validator'
 // lấy ra bộ định tuyến
 const StoryRouter = express.Router()
 
@@ -24,11 +25,11 @@ StoryRouter.post(
   StoryController.insert
 )
 
-// StoryRouter.put(
-//   '/:id',
-//   ValidatorMiddleware.validateBody(AuthorUpdateValidator),
-//   AuthorController.update
-// )
+StoryRouter.put(
+  '/:id',
+  ValidatorMiddleware.validateBody(StoryUpdateValidator),
+  StoryController.update
+)
 
 // StoryRouter.use(AuthMiddleware.checkAuth)
 
