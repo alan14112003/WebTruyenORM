@@ -16,11 +16,17 @@ const PERMISSION_CODE = {
   delete: PERMISSION_NAME + 'delete',
 }
 
-CategoryRouter.get('/', CategoryController.all)
+CategoryRouter.get(
+  '/',
+  AuthMiddleware.checkPermission(PERMISSION_CODE.all),
+  CategoryController.all
+)
 
-CategoryRouter.get('/:id', CategoryController.get)
-
-CategoryRouter.use(AuthMiddleware.checkAuth)
+CategoryRouter.get(
+  '/:id',
+  AuthMiddleware.checkPermission(PERMISSION_CODE.get),
+  CategoryController.get
+)
 
 CategoryRouter.post(
   '/',

@@ -3,6 +3,7 @@ import StoryController from '@/app/www/controllers/story/Story.controller'
 import ValidatorMiddleware from '@/app/www/middleware/Validator.middleware'
 import StoryInsertValidator from '@/app/www/validators/body/story/Insert.validator'
 import StoryUpdateValidator from '@/app/www/validators/body/story/Update.validator'
+import AuthMiddleware from '@/app/www/middleware/Auth.middleware'
 // lấy ra bộ định tuyến
 const StoryRouter = express.Router()
 
@@ -15,27 +16,35 @@ const PERMISSION_CODE = {
   delete: PERMISSION_NAME + 'delete',
 }
 
-StoryRouter.get('/', StoryController.all)
+StoryRouter.get(
+  '/',
+  AuthMiddleware.checkPermission(PERMISSION_CODE.all),
+  StoryController.all
+)
 
-StoryRouter.get('/:slugId', StoryController.get)
+StoryRouter.get(
+  '/:slugId',
+  AuthMiddleware.checkPermission(PERMISSION_CODE.get),
+  StoryController.get
+)
 
 StoryRouter.post(
   '/',
+  AuthMiddleware.checkPermission(PERMISSION_CODE.insert),
   ValidatorMiddleware.validateBody(StoryInsertValidator),
   StoryController.insert
 )
 
 StoryRouter.put(
   '/:id',
+  AuthMiddleware.checkPermission(PERMISSION_CODE.update),
   ValidatorMiddleware.validateBody(StoryUpdateValidator),
   StoryController.update
 )
 
-// StoryRouter.use(AuthMiddleware.checkAuth)
-
 StoryRouter.delete(
   '/:id',
-  // AuthMiddleware.checkPermission(PERMISSION_CODE.delete),
+  AuthMiddleware.checkPermission(PERMISSION_CODE.delete),
   StoryController.delete
 )
 
