@@ -7,6 +7,7 @@ import Category from '@/app/models/Category.model'
 import StoryAccessEnum from '@/app/enums/story/StoryAccess.enum'
 import CategoryStory from '@/app/models/CategoryStory.model'
 import SequelizeConfig from '@/config/Sequelize.config'
+import Author from '@/app/models/Author.model'
 
 const RedisKeyName = 'stories:'
 const REDIS_KEY = {
@@ -53,6 +54,29 @@ const updateCategories = async (categories, storyId, trx) => {
   }
 
   await Promise.all(promises)
+}
+
+const includeCountsQuery = () => {
+  return [
+    [
+      Sequelize.literal(
+        `(SELECT count(*) from viewstories ViewStory where ViewStory.StoryId = Story.id)`
+      ),
+      'viewCount',
+    ],
+    [
+      Sequelize.literal(
+        `(SELECT count(*) from likestories LikeStory where LikeStory.StoryId = Story.id)`
+      ),
+      'likeCount',
+    ],
+    [
+      Sequelize.literal(
+        `(SELECT count(*) from followstories FollowStory where FollowStory.StoryId = Story.id)`
+      ),
+      'followCount',
+    ],
+  ]
 }
 
 const StoryController = {
@@ -118,26 +142,7 @@ const StoryController = {
 
         stories = await PaginationUtil.paginate(Story, page, perPage, {
           attributes: {
-            include: [
-              [
-                Sequelize.literal(
-                  `(SELECT count(*) from viewstories ViewStory where ViewStory.StoryId = Story.id)`
-                ),
-                'viewCount',
-              ],
-              [
-                Sequelize.literal(
-                  `(SELECT count(*) from likestories LikeStory where LikeStory.StoryId = Story.id)`
-                ),
-                'likeCount',
-              ],
-              [
-                Sequelize.literal(
-                  `(SELECT count(*) from followstories FollowStory where FollowStory.StoryId = Story.id)`
-                ),
-                'followCount',
-              ],
-            ],
+            include: [...includeCountsQuery()],
           },
           include: [
             {
@@ -165,21 +170,31 @@ const StoryController = {
 
   get: async (req, res, next) => {
     try {
-      const { id } = req.params
+      const { slugId } = req.params
+      const [slug, id] = slugId.split('.-.')
 
       const redisKey = `${REDIS_KEY.get}.${id}`
-      let category = await RedisConfig.get(redisKey)
+      let story = await RedisConfig.get(redisKey)
 
-      if (!category) {
-        category = await Category.findOne({
-          where: { id: id },
+      if (!story) {
+        story = await Story.findOne({
+          attributes: {
+            include: [...includeCountsQuery()],
+          },
+          where: { id: id, slug: slug, access: StoryAccessEnum.PUBLIC },
+          include: [
+            {
+              model: Author,
+            },
+          ],
         })
       }
 
-      RedisConfig.set(redisKey, category)
+      RedisConfig.set(redisKey, story)
 
-      return res.status(200).json(category)
+      return res.status(200).json(story)
     } catch (error) {
+      console.log(error)
       next(error)
     }
   },
@@ -261,16 +276,18 @@ const StoryController = {
 
   delete: async (req, res, next) => {
     try {
-      const id = req.params.id
-      const deletedCount = await Category.destroy({
+      const { id } = req.params
+      const deletedCount = await Story.destroy({
         where: {
           id: id,
         },
       })
+
       if (deletedCount) {
         RedisConfig.del(REDIS_KEY.all)
         RedisConfig.del(`${REDIS_KEY.get}.${id}`)
       }
+
       return res.status(200).json(deletedCount)
     } catch (error) {
       next(error)

@@ -17,7 +17,7 @@ const PERMISSION_CODE = {
 
 StoryRouter.get('/', StoryController.all)
 
-// StoryRouter.get('/:id', AuthorController.get)
+StoryRouter.get('/:slugId', StoryController.get)
 
 StoryRouter.post(
   '/',
@@ -33,10 +33,10 @@ StoryRouter.put(
 
 // StoryRouter.use(AuthMiddleware.checkAuth)
 
-// StoryRouter.delete(
-//   '/:id',
-//   AuthMiddleware.checkPermission(PERMISSION_CODE.delete),
-//   AuthorController.delete
-// )
+StoryRouter.delete(
+  '/:id',
+  // AuthMiddleware.checkPermission(PERMISSION_CODE.delete),
+  StoryController.delete
+)
 
 export default StoryRouter
