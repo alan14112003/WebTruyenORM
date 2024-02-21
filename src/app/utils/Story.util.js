@@ -4,6 +4,8 @@ import PaginationUtil from './Pagination.util'
 import Story from '../models/Story.model'
 import Category from '../models/Category.model'
 import Author from '../models/Author.model'
+import User from '../models/User.model'
+import UserUtil from './User.util'
 
 const StoryUtil = {
   /**
@@ -155,6 +157,11 @@ const StoryUtil = {
             attributes: [],
           },
         },
+        {
+          model: User,
+          required: true,
+          attributes: [...UserUtil.getInfoInstoriesAttribute()],
+        },
       ],
       order: [['updatedAt', 'DESC']],
       ...options.moreOptions,
@@ -176,6 +183,18 @@ const StoryUtil = {
       include: [
         {
           model: Author,
+        },
+        {
+          model: Category,
+          required: true,
+          through: {
+            attributes: [],
+          },
+        },
+        {
+          model: User,
+          required: true,
+          attributes: [...UserUtil.getInfoInstoriesAttribute()],
         },
       ],
       ...options.moreOptions,
