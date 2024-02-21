@@ -14,6 +14,7 @@ const PERMISSION_CODE = {
   insert: PERMISSION_NAME + 'insert',
   update: PERMISSION_NAME + 'update',
   delete: PERMISSION_NAME + 'delete',
+  hardDelete: PERMISSION_NAME + 'hard_delete',
 }
 
 StoryRouter.get(
@@ -46,6 +47,12 @@ StoryRouter.delete(
   '/:id',
   AuthMiddleware.checkPermission(PERMISSION_CODE.delete),
   StoryController.delete
+)
+
+StoryRouter.delete(
+  '/:id/hard',
+  AuthMiddleware.checkPermission(PERMISSION_CODE.hardDelete),
+  StoryController.hardDelete
 )
 
 export default StoryRouter

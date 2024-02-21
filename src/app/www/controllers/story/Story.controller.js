@@ -2,81 +2,15 @@ import { Op, Sequelize } from 'sequelize'
 import RedisConfig from '@/config/Redis.config'
 import slugifyConfig from '@/config/Slugify.config'
 import Story from '@/app/models/Story.model'
-import PaginationUtil from '@/app/utils/Pagination.util'
-import Category from '@/app/models/Category.model'
 import StoryAccessEnum from '@/app/enums/story/StoryAccess.enum'
 import CategoryStory from '@/app/models/CategoryStory.model'
 import SequelizeConfig from '@/config/Sequelize.config'
-import Author from '@/app/models/Author.model'
+import StoryUtil from '@/app/utils/Story.util'
 
 const RedisKeyName = 'stories:'
 const REDIS_KEY = {
   all: RedisKeyName + 'all',
   get: RedisKeyName + 'get',
-}
-
-const updateCategories = async (categories, storyId, trx) => {
-  const oldCategories = await CategoryStory.findAll({
-    where: {
-      StoryId: storyId,
-    },
-    attributes: ['CategoryId'],
-    raw: true,
-  })
-
-  const oldCategoriesArr = oldCategories.map((category) => category.CategoryId)
-
-  const catIns = categories.filter(
-    (element) => !oldCategoriesArr.includes(element)
-  )
-
-  const catDel = oldCategoriesArr.filter(
-    (element) => !categories.includes(element)
-  )
-
-  const promises = []
-  if (catIns.length > 0) {
-    promises.push(
-      CategoryStory.bulkCreate(
-        catIns.map((catId) => ({ StoryId: storyId, CategoryId: catId })),
-        { transaction: trx }
-      )
-    )
-  }
-
-  if (catDel.length > 0) {
-    promises.push(
-      CategoryStory.destroy({
-        where: { CategoryId: { [Op.in]: catDel } },
-        transaction: trx,
-      })
-    )
-  }
-
-  await Promise.all(promises)
-}
-
-const includeCountsQuery = () => {
-  return [
-    [
-      Sequelize.literal(
-        `(SELECT count(*) from viewstories ViewStory where ViewStory.StoryId = Story.id)`
-      ),
-      'viewCount',
-    ],
-    [
-      Sequelize.literal(
-        `(SELECT count(*) from likestories LikeStory where LikeStory.StoryId = Story.id)`
-      ),
-      'likeCount',
-    ],
-    [
-      Sequelize.literal(
-        `(SELECT count(*) from followstories FollowStory where FollowStory.StoryId = Story.id)`
-      ),
-      'followCount',
-    ],
-  ]
 }
 
 const StoryController = {
@@ -99,64 +33,30 @@ const StoryController = {
         ${type}.
         ${isFull}.
         ${categoryIn}.
-        ${categoryNotIn}
+        ${categoryNotIn}.
+        ${authorId}.
+        ${userId}
         `
       let stories = await RedisConfig.get(redisKey)
 
       if (!stories) {
-        const categoryWhere = {}
-        const storyWhere = {}
-
-        // where của category
-        if (categoryIn) {
-          const categoryInArr = categoryIn.split(',')
-          categoryWhere.id = {
-            [Op.in]: categoryInArr,
-          }
-        }
-
-        if (categoryNotIn) {
-          const categoryNotInArr = categoryNotIn.split(',')
-          categoryWhere.id = {
-            ...categoryWhere.id,
-            [Op.notIn]: categoryNotInArr,
-          }
-        }
-
-        // where của story
-        if (isFull) {
-          storyWhere.isFull = isFull
-        }
-
-        if (type) {
-          storyWhere.type = type
-        }
-
-        if (authorId) {
-          storyWhere.authorId = authorId
-        }
-
-        if (userId) {
-          storyWhere.userId = userId
-        }
-
-        stories = await PaginationUtil.paginate(Story, page, perPage, {
-          attributes: {
-            include: [...includeCountsQuery()],
+        stories = await StoryUtil.getAllStories(
+          {
+            page,
+            perPage,
+            type,
+            isFull,
+            categoryIn,
+            categoryNotIn,
+            authorId,
+            userId,
           },
-          include: [
-            {
-              model: Category,
-              where: {
-                ...categoryWhere,
-              },
+          {
+            moreWhere: {
+              access: StoryAccessEnum.PUBLIC,
             },
-          ],
-          where: {
-            ...storyWhere,
-            access: StoryAccessEnum.PUBLIC,
-          },
-        })
+          }
+        )
       }
 
       RedisConfig.set(redisKey, stories)
@@ -177,16 +77,10 @@ const StoryController = {
       let story = await RedisConfig.get(redisKey)
 
       if (!story) {
-        story = await Story.findOne({
-          attributes: {
-            include: [...includeCountsQuery()],
+        story = await StoryUtil.getOneStory(id, slug, {
+          moreWhere: {
+            access: StoryAccessEnum.PUBLIC,
           },
-          where: { id: id, slug: slug, access: StoryAccessEnum.PUBLIC },
-          include: [
-            {
-              model: Author,
-            },
-          ],
         })
       }
 
@@ -203,9 +97,11 @@ const StoryController = {
     const trx = await SequelizeConfig.transaction()
 
     try {
+      const auth = req.user
       const storyDTO = req.body
 
       storyDTO.slug = slugifyConfig(storyDTO.name)
+      storyDTO.UserId = auth.id
       storyDTO.isFull = false
       storyDTO.access = StoryAccessEnum.PRIVATE
 
@@ -228,6 +124,7 @@ const StoryController = {
       trx.commit()
       return res.status(201).json(story)
     } catch (error) {
+      console.log(error)
       trx.rollback()
       next(error)
     }
@@ -237,6 +134,7 @@ const StoryController = {
     const trx = await SequelizeConfig.transaction()
 
     try {
+      const auth = req.user
       const { id } = req.params
       const body = req.body
 
@@ -244,6 +142,10 @@ const StoryController = {
 
       if (!story) {
         return res.status(404).json('story not found')
+      }
+
+      if (story.UserId != auth.id) {
+        return res.status(403).json('access denined')
       }
 
       if (body.name) {
@@ -258,7 +160,7 @@ const StoryController = {
       })
 
       if (body.categories) {
-        await updateCategories(body.categories, id, trx)
+        await StoryUtil.updateCategories(body.categories, id, trx)
       }
 
       if (updatedCount) {
@@ -276,11 +178,41 @@ const StoryController = {
 
   delete: async (req, res, next) => {
     try {
+      const auth = req.user
       const { id } = req.params
+
       const deletedCount = await Story.destroy({
         where: {
           id: id,
+          UserId: auth.id,
         },
+      })
+
+      if (deletedCount) {
+        RedisConfig.del(REDIS_KEY.all)
+        RedisConfig.del(`${REDIS_KEY.get}.${id}`)
+      }
+
+      return res.status(200).json(deletedCount)
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  hardDelete: async (req, res, next) => {
+    try {
+      const auth = req.user
+      const { id } = req.params
+
+      const deletedCount = await Story.destroy({
+        where: {
+          id: id,
+          UserId: auth.id,
+          deletedAt: {
+            [Op.not]: null,
+          },
+        },
+        force: true,
       })
 
       if (deletedCount) {

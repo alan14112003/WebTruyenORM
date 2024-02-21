@@ -1,17 +1,24 @@
 const PaginationUtil = {
   /**
-   * @param { import("sequelize").FindAndCountOptions } options
+   * @param { import("sequelize").FindOptions } options
    */
   paginate: async (model, page, limit, options = {}) => {
     limit = limit ? +limit : 10
     page = page ? +page : 1
 
     let offset = 0 + (page - 1) * limit
-    const { count: total, rows: data } = await model.findAndCountAll({
-      offset: offset,
-      limit: limit,
-      ...options,
-    })
+    const [total, data] = await Promise.all([
+      model.count({
+        distinct: ['id'],
+        ...options,
+      }),
+
+      model.findAll({
+        offset: offset,
+        limit: limit,
+        ...options,
+      }),
+    ])
 
     return {
       total: total,

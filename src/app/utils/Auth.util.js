@@ -40,7 +40,7 @@ const AuthUtil = {
 
   generateToken: (auth) => {
     return {
-      accessToken: JwtConfig.createToken(auth, '30m'),
+      accessToken: JwtConfig.createToken(auth, '1y'),
       refreshToken: JwtConfig.createToken(auth, '30d'),
     }
   },
