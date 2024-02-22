@@ -95,11 +95,13 @@ const StoryUtil = {
       categoryNotIn,
       authorId,
       userId,
+      order,
     },
     options
   ) => {
     const categoryWhere = {}
     const storyWhere = {}
+    const orderBy = []
 
     // where của category
     if (categoryIn) {
@@ -139,6 +141,33 @@ const StoryUtil = {
       storyWhere.userId = userId
     }
 
+    switch (order) {
+      case 'update':
+        orderBy.push(['updatedAt', 'DESC'])
+        break
+      case 'views':
+        orderBy.push(['viewCount', 'DESC'])
+        break
+      case 'likes':
+        orderBy.push(['likeCount', 'DESC'])
+        break
+      case 'chapters':
+        orderBy.push(['lastChapter', 'DESC'])
+        break
+      case 'isFull':
+        orderBy.push(['isFull', 'DESC'])
+        break
+      default:
+        orderBy.push(
+          ['updatedAt', 'DESC'],
+          ['viewCount', 'DESC'],
+          ['likeCount', 'DESC'],
+          ['lastChapter', 'DESC'],
+          ['isFull', 'DESC']
+        )
+        break
+    }
+
     return await PaginationUtil.paginate(Story, page, perPage, {
       where: {
         ...storyWhere,
@@ -155,8 +184,10 @@ const StoryUtil = {
               `(SELECT Chapter.number 
               from chapters Chapter 
               where Chapter.StoryId = Story.id 
-              and Chapter.deletedAt not null
+              and Chapter.deletedAt is not null
               and Chapter.access = ${ChapterAccessEnum.PUBLIC}
+              order by Chapter.number desc
+              limit 1
               )`
             ),
             'lastChapter',
@@ -177,7 +208,7 @@ const StoryUtil = {
           attributes: [...UserUtil.getPublicInfoAttribute()],
         },
       ],
-      order: [['updatedAt', 'DESC']],
+      order: orderBy,
       ...options.moreOptions,
     })
   },

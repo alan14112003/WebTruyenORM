@@ -25,6 +25,7 @@ const StoryController = {
         categoryNotIn,
         authorId,
         userId,
+        order,
       } = req.query
 
       const redisKey = `${REDIS_KEY.all}.
@@ -35,7 +36,8 @@ const StoryController = {
         ${categoryIn}.
         ${categoryNotIn}.
         ${authorId}.
-        ${userId}
+        ${userId}.
+        ${order}.
         `
       let stories = await RedisConfig.get(redisKey)
 
@@ -50,6 +52,7 @@ const StoryController = {
             categoryNotIn,
             authorId,
             userId,
+            order,
           },
           {
             moreWhere: {
