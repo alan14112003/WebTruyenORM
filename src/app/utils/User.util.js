@@ -1,5 +1,5 @@
 const UserUtil = {
-  getInfoInstoriesAttribute: (hasEmail = false) => {
+  getPublicInfoAttribute: (hasEmail = false) => {
     const attributes = []
     if (hasEmail) {
       attributes.push('email')
