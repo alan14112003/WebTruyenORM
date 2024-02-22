@@ -50,6 +50,7 @@ const User = SequelizeConfig.define(
     },
     accountBalance: {
       type: DataTypes.INTEGER,
+      defaultValue: 0,
     },
   },
   {

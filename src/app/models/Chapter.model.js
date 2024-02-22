@@ -13,10 +13,10 @@ const Chapter = SequelizeConfig.define(
     content: {
       type: DataTypes.TEXT('long'),
     },
-    is_free: {
+    isFree: {
       type: DataTypes.BOOLEAN,
     },
-    private_end: {
+    privateEnd: {
       type: DataTypes.DATE,
     },
     price: {
