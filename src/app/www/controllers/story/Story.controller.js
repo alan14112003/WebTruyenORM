@@ -1,4 +1,4 @@
-import { Op, Sequelize } from 'sequelize'
+import { Op } from 'sequelize'
 import RedisConfig from '@/config/Redis.config'
 import slugifyConfig from '@/config/Slugify.config'
 import Story from '@/app/models/Story.model'

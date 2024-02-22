@@ -6,6 +6,7 @@ import Category from '../models/Category.model'
 import Author from '../models/Author.model'
 import User from '../models/User.model'
 import UserUtil from './User.util'
+import ChapterAccessEnum from '../enums/chapter/ChapterAccess.enum'
 
 const StoryUtil = {
   /**
@@ -147,7 +148,20 @@ const StoryUtil = {
       subQuery: false,
 
       attributes: {
-        include: [...StoryUtil.includeCountsAttr()],
+        include: [
+          ...StoryUtil.includeCountsAttr(),
+          [
+            Sequelize.literal(
+              `(SELECT Chapter.number 
+              from chapters Chapter 
+              where Chapter.StoryId = Story.id 
+              and Chapter.deletedAt not null
+              and Chapter.access = ${ChapterAccessEnum.PUBLIC}
+              )`
+            ),
+            'lastChapter',
+          ],
+        ],
       },
       include: [
         {
@@ -160,7 +174,7 @@ const StoryUtil = {
         {
           model: User,
           required: true,
-          attributes: [...UserUtil.getInfoInstoriesAttribute()],
+          attributes: [...UserUtil.getPublicInfoAttribute()],
         },
       ],
       order: [['updatedAt', 'DESC']],
