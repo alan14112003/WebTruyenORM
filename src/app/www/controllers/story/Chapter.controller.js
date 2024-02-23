@@ -5,7 +5,7 @@ import StoryAccessEnum from '@/app/enums/story/StoryAccess.enum'
 import ChapterUtil from '@/app/utils/Chapter.util'
 import Chapter from '@/app/models/Chapter.model'
 import ChapterAccessEnum from '@/app/enums/chapter/ChapterAccess.enum'
-import PurchasesUtil from '@/app/utils/Purchases.util'
+import PurchaseUtil from '@/app/utils/Purchase.util'
 
 const RedisKeyName = 'chapters:'
 const REDIS_KEY = {
@@ -72,10 +72,7 @@ const ChapterController = {
       }
 
       // nếu chương không miễn phí thì phải kiểm tra người dùng đó có mua chương chưa.
-      const transaction = await PurchasesUtil.getTransaction(
-        auth.id,
-        chapter.id
-      )
+      const transaction = await PurchaseUtil.getTransaction(auth.id, chapter.id)
 
       if (!transaction) {
         return res

@@ -1,10 +1,10 @@
 import SequelizeConfig from '@/config/Sequelize.config'
 import { DataTypes } from 'sequelize'
 
-const Purchases = SequelizeConfig.define('Purchases', {
+const Purchase = SequelizeConfig.define('Purchase', {
   price: {
     type: DataTypes.INTEGER,
   },
 })
 
-export default Purchases
+export default Purchase

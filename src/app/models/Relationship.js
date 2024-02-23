@@ -9,7 +9,7 @@ import FollowUser from './FollowUser.model'
 import HistoryStory from './HistoryStory.model'
 import LikeStory from './LikeStory.model'
 import Notification from './Notification.model'
-import Purchases from './Purchases.model'
+import Purchase from './Purchase.model'
 import Role from './Role.model'
 import TransactionHistory from './TransactionHistory.model'
 import User from './User.model'
@@ -29,7 +29,7 @@ Chapter.belongsTo(Story, {
 })
 
 Chapter.belongsToMany(User, {
-  through: Purchases,
+  through: Purchase,
 })
 
 // comment
@@ -100,7 +100,7 @@ User.belongsToMany(Story, {
 
 // chapters
 User.belongsToMany(Chapter, {
-  through: Purchases,
+  through: Purchase,
   as: 'chapterBuy',
 })
 
