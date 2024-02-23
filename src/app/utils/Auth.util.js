@@ -1,6 +1,7 @@
 import CloudinaryConfig from '@/config/Cloudinary.config'
 import JwtConfig from '@/config/Jwt.config'
 import MailConfig from '@/config/Mail.config'
+import User from '../models/User.model'
 
 const AuthUtil = {
   getAuthResult: (auth) => {
@@ -134,6 +135,38 @@ const AuthUtil = {
       url: uploadResponse.url,
       public_id: uploadResponse.public_id,
     })
+  },
+
+  purchases: async (user, price, trx) => {
+    if (user.accountBalance < price) {
+      new Error('the balance in the account is not enough')
+    }
+
+    return await User.update(
+      {
+        accountBalance: user.accountBalance - price,
+      },
+      {
+        where: {
+          id: user.id,
+        },
+        transaction: trx,
+      }
+    )
+  },
+
+  receiveMoney: async (user, price, trx) => {
+    return await User.update(
+      {
+        accountBalance: user.accountBalance + price,
+      },
+      {
+        where: {
+          id: user.id,
+        },
+        transaction: trx,
+      }
+    )
   },
 }
 
