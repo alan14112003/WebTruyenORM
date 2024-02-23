@@ -239,7 +239,7 @@ const StoryUtil = {
         {
           model: User,
           required: true,
-          attributes: [...UserUtil.getInfoInstoriesAttribute()],
+          attributes: [...UserUtil.getPublicInfoAttribute()],
         },
       ],
       ...options.moreOptions,

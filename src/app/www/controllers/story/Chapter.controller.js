@@ -1,0 +1,271 @@
+import { Op } from 'sequelize'
+import RedisConfig from '@/config/Redis.config'
+import Story from '@/app/models/Story.model'
+import StoryAccessEnum from '@/app/enums/story/StoryAccess.enum'
+import ChapterUtil from '@/app/utils/Chapter.util'
+import Chapter from '@/app/models/Chapter.model'
+import ChapterAccessEnum from '@/app/enums/chapter/ChapterAccess.enum'
+import PurchasesUtil from '@/app/utils/Purchases.util'
+
+const RedisKeyName = 'chapters:'
+const REDIS_KEY = {
+  all: RedisKeyName + 'all',
+  get: RedisKeyName + 'get',
+}
+
+const ChapterController = {
+  allByStoryId: async (req, res, next) => {
+    try {
+      const { slugId } = req.params
+      const { order } = req.query
+
+      const [storySlug, storyId] = slugId.split('.-.')
+
+      const redisKey = `${REDIS_KEY.all}.
+        ${storyId}.
+        ${order}.
+        `
+      let chapters = await RedisConfig.get(redisKey)
+
+      if (!chapters) {
+        chapters = await ChapterUtil.getAllByStory(storyId, storySlug, order, {
+          moreWhere: {
+            access: ChapterAccessEnum.PUBLIC,
+          },
+        })
+      }
+
+      RedisConfig.set(redisKey, chapters)
+
+      return res.status(200).json(chapters)
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+  },
+
+  get: async (req, res, next) => {
+    try {
+      const { id } = req.params
+      const auth = req.user
+
+      const redisKey = `${REDIS_KEY.get}.${id}`
+      let chapter = await RedisConfig.get(redisKey)
+
+      if (!chapter) {
+        chapter = await ChapterUtil.getOneChapter(id, {
+          moreWhere: {
+            access: StoryAccessEnum.PUBLIC,
+          },
+        })
+      }
+
+      if (!chapter) {
+        return res.status(404).json('not found')
+      }
+
+      RedisConfig.set(redisKey, chapter)
+
+      // kiểm tra nếu chương không miễn phí
+      if (chapter.isFree) {
+        return res.status(200).json(chapter)
+      }
+
+      // nếu chương không miễn phí thì phải kiểm tra người dùng đó có mua chương chưa.
+      const transaction = await PurchasesUtil.getTransaction(
+        auth.id,
+        chapter.id
+      )
+
+      if (!transaction) {
+        return res
+          .status(403)
+          .json('you need to purchase this chapter before watching')
+      }
+
+      return res.status(200).json(chapter)
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+  },
+
+  insert: async (req, res, next) => {
+    try {
+      const auth = req.user
+      const chapterDTO = req.body
+
+      chapterDTO.access = StoryAccessEnum.PRIVATE
+
+      const story = await Story.findByPk(chapterDTO.StoryId)
+      if (!story) {
+        return res.status(400).json('story not found')
+      }
+
+      if (story.UserId != auth.id) {
+        return res.status(403).json('access denined')
+      }
+
+      const chapter = await Chapter.create(chapterDTO)
+
+      RedisConfig.delWithPrefix(`${REDIS_KEY.all}.
+        ${chapterDTO.StoryId}.`)
+
+      return res.status(201).json(chapter)
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+  },
+
+  update: async (req, res, next) => {
+    try {
+      const auth = req.user
+      const { id } = req.params
+      const chapterDTO = req.body
+
+      const chapter = await Chapter.findByPk(id, {
+        include: [
+          {
+            model: Story,
+            required: true,
+          },
+        ],
+      })
+
+      if (!chapter) {
+        return res.status(404).json('chapter not found')
+      }
+
+      if (chapter.Story.UserId != auth.id) {
+        return res.status(403).json('access denined')
+      }
+
+      const [updatedCount] = await Chapter.update(chapterDTO, {
+        where: {
+          id: id,
+        },
+      })
+
+      if (updatedCount) {
+        RedisConfig.delWithPrefix(`${REDIS_KEY.all}.
+          ${chapter.StoryId}.`)
+
+        RedisConfig.del(`${REDIS_KEY.get}.${id}`)
+      }
+
+      return res.status(200).json(updatedCount)
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+  },
+
+  delete: async (req, res, next) => {
+    try {
+      const auth = req.user
+      const { id } = req.params
+
+      const chapter = await Chapter.findByPk(id, {
+        include: [
+          {
+            model: Story,
+            required: true,
+          },
+        ],
+      })
+
+      if (!chapter) {
+        return res.status(404).json('chapter not found')
+      }
+
+      if (chapter.Story.UserId != auth.id) {
+        return res.status(403).json('access denined')
+      }
+
+      if (chapter.access != ChapterAccessEnum.PRIVATE) {
+        return res.status(400).json('chapter is not private')
+      }
+
+      const deletedCount = await Chapter.destroy({
+        where: {
+          id: id,
+        },
+      })
+
+      if (deletedCount) {
+        RedisConfig.delWithPrefix(REDIS_KEY.all)
+        RedisConfig.del(`${REDIS_KEY.get}.${id}`)
+      }
+
+      return res.status(200).json(deletedCount)
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  public: async (req, res, next) => {
+    try {
+      const auth = req.user
+      const { ids } = req.body
+
+      const chapters = await Chapter.findAll({
+        include: [
+          {
+            model: Story,
+            required: true,
+          },
+        ],
+        where: {
+          id: {
+            [Op.in]: ids,
+          },
+        },
+      })
+
+      if (!chapters) {
+        return res.status(400).json('chapters not found')
+      }
+
+      for (const chapter of chapters) {
+        if (chapter.Story.UserId !== auth.id) {
+          return res
+            .status(403)
+            .json(`access denined for chapter id: ${chapter.id}`)
+        }
+
+        if (chapter.access != ChapterAccessEnum.PRIVATE) {
+          return res
+            .status(400)
+            .json(`chapter id: ${chapter.id} is not private`)
+        }
+      }
+
+      const [updatedCount] = await Chapter.update(
+        {
+          access: ChapterAccessEnum.PUBLIC,
+        },
+        {
+          where: {
+            id: {
+              [Op.in]: ids,
+            },
+          },
+        }
+      )
+
+      if (updatedCount) {
+        RedisConfig.delWithPrefix(REDIS_KEY.all)
+        for (const id of ids) {
+          RedisConfig.del(`${REDIS_KEY.get}.${id}`)
+        }
+      }
+
+      return res.status(200).json(updatedCount)
+    } catch (error) {
+      next(error)
+    }
+  },
+}
+
+export default ChapterController

@@ -1,0 +1,174 @@
+[
+    "-----------permissions--------------",
+    {
+        "name": "permissions all",
+        "code": "permissions.all",
+        "description": "xem tất cả quyền"
+    },
+    {
+        "name": "permissions insert",
+        "code": "permissions.insert",
+        "description": "thêm quyền cụ thể"
+    },
+    {
+        "name": "permissions get",
+        "code": "permissions.get",
+        "description": "xem quyền cụ thể"
+    },
+    {
+        "name": "permissions update",
+        "code": "permissions.update",
+        "description": "sửa quyền cụ thể"
+    },
+    {
+        "name": "permissions delete",
+        "code": "permissions.delete",
+        "description": "xóa quyền cụ thể"
+    },
+    "-------------roles------------",
+    {
+        "name": "roles all",
+        "code": "roles.all",
+        "description": "xem tất cả chức vụ"
+    },
+    {
+        "name": "roles insert",
+        "code": "roles.insert",
+        "description": "thêm chức vụ cụ thể"
+    },
+    {
+        "name": "roles get",
+        "code": "roles.get",
+        "description": "xem chức vụ cụ thể"
+    },
+    {
+        "name": "roles update",
+        "code": "roles.update",
+        "description": "sửa chức vụ cụ thể"
+    },
+    {
+        "name": "roles delete",
+        "code": "roles.delete",
+        "description": "xóa chức vụ cụ thể"
+    },
+    "------------authors-------------",
+    {
+        "name": "authors all",
+        "code": "authors.all",
+        "description": "xem tất cả tác giả"
+    },
+    {
+        "name": "authors insert",
+        "code": "authors.insert",
+        "description": "thêm tác giả cụ thể"
+    },
+    {
+        "name": "authors get",
+        "code": "authors.get",
+        "description": "xem tác giả cụ thể"
+    },
+    {
+        "name": "authors update",
+        "code": "authors.update",
+        "description": "sửa tác giả cụ thể"
+    },
+    {
+        "name": "authors delete",
+        "code": "authors.delete",
+        "description": "xóa tác giả cụ thể"
+    },
+    "------------categories-------------",
+    {
+        "name": "categories all",
+        "code": "categories.all",
+        "description": "xem tất cả thể loại"
+    },
+    {
+        "name": "categories insert",
+        "code": "categories.insert",
+        "description": "thêm thể loại cụ thể"
+    },
+    {
+        "name": "categories get",
+        "code": "categories.get",
+        "description": "xem thể loại cụ thể"
+    },
+    {
+        "name": "categories update",
+        "code": "categories.update",
+        "description": "sửa thể loại cụ thể"
+    },
+    {
+        "name": "categories delete",
+        "code": "categories.delete",
+        "description": "xóa thể loại cụ thể"
+    },
+    "------------chapters-------------",
+    {
+        "name": "chapters insert",
+        "code": "chapters.insert",
+        "description": "thêm chương cụ thể"
+    },
+    {
+        "name": "chapters get",
+        "code": "chapters.get",
+        "description": "xem chương cụ thể"
+    },
+    {
+        "name": "chapters update",
+        "code": "chapters.update",
+        "description": "sửa chương cụ thể"
+    },
+    {
+        "name": "chapters public",
+        "code": "chapters.public",
+        "description": "công khai danh sách chương"
+    },
+    {
+        "name": "chapters delete",
+        "code": "chapters.delete",
+        "description": "xóa chương cụ thể"
+    },
+    "------------stories-------------",
+    {
+        "name": "stories all",
+        "code": "stories.all",
+        "description": "xem danh sách truyện"
+    },
+    {
+        "name": "stories insert",
+        "code": "stories.insert",
+        "description": "thêm truyện cụ thể"
+    },
+    {
+        "name": "stories get",
+        "code": "stories.get",
+        "description": "xem truyện cụ thể"
+    },
+    {
+        "name": "stories update",
+        "code": "stories.update",
+        "description": "sửa truyện cụ thể"
+    },
+    {
+        "name": "stories public",
+        "code": "stories.public",
+        "description": "công khai truyện cụ thể"
+    },
+    {
+        "name": "stories all_chapters",
+        "code": "stories.all_chapters",
+        "description": "lấy danh sách chương từ truyện cụ thể"
+    },
+    {
+        "name": "stories delete",
+        "code": "stories.delete",
+        "description": "xóa truyện cụ thể"
+    },
+    {
+        "name": "stories hard_delete",
+        "code": "stories.hard_delete",
+        "description": "xóa cứng truyện cụ thể"
+    },
+    "-------------------------"
+]

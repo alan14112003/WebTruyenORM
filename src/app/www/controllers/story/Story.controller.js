@@ -6,6 +6,7 @@ import StoryAccessEnum from '@/app/enums/story/StoryAccess.enum'
 import CategoryStory from '@/app/models/CategoryStory.model'
 import SequelizeConfig from '@/config/Sequelize.config'
 import StoryUtil from '@/app/utils/Story.util'
+import ChapterUtil from '@/app/utils/Chapter.util'
 
 const RedisKeyName = 'stories:'
 const REDIS_KEY = {
@@ -224,6 +225,56 @@ const StoryController = {
       }
 
       return res.status(200).json(deletedCount)
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  public: async (req, res, next) => {
+    try {
+      const auth = req.user
+      const { id } = req.params
+
+      const story = await Story.findOne({
+        where: {
+          id: id,
+        },
+      })
+
+      if (!story) {
+        return res.status(404).json('story not found')
+      }
+
+      if (story.UserId !== auth.id) {
+        return res.status(403).json(`access denined`)
+      }
+
+      if (story.access != StoryAccessEnum.PRIVATE) {
+        return res.status(400).json(`story is not private`)
+      }
+
+      const chapterPublicExist = ChapterUtil.checkChapterPublicExist(id)
+      if (!chapterPublicExist) {
+        return res.status(400).json(`must have at least 1 published chapter`)
+      }
+
+      const [updatedCount] = await Story.update(
+        {
+          access: StoryAccessEnum.PUBLIC,
+        },
+        {
+          where: {
+            id: id,
+          },
+        }
+      )
+
+      if (updatedCount) {
+        RedisConfig.delWithPrefix(REDIS_KEY.all)
+        RedisConfig.del(`${REDIS_KEY.get}.${id}`)
+      }
+
+      return res.status(200).json(updatedCount)
     } catch (error) {
       next(error)
     }
