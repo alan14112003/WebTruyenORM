@@ -40,4 +40,6 @@ AuthRouter.post(
 
 AuthRouter.get('/active-email', AuthController.activeEmail)
 
+AuthRouter.post('/refresh', AuthController.refresh)
+
 export default AuthRouter

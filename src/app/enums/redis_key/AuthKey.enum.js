@@ -1,6 +1,7 @@
 function createKeyEnum(name) {
   return {
     ID: name + 'id',
+    REFRESH: name + 'refresh',
   }
 }
 

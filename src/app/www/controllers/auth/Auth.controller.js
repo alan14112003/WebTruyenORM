@@ -7,6 +7,8 @@ import BcryptConfig from '@/config/Bcrypt.config'
 import GoogleOauth2Config from '@/config/GoogleOauth2.config'
 import JwtConfig from '@/config/Jwt.config'
 import SequelizeConfig from '@/config/Sequelize.config'
+import RedisConfig from '@/config/Redis.config'
+import AuthKeyEnum from '@/app/enums/redis_key/AuthKey.enum'
 
 const REFRESH_TOKEN_EXP = process.env.REFRESH_TOKEN_EXP
 
@@ -283,6 +285,53 @@ const AuthController = {
       })
 
       return res.status(200).send('success')
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  refresh: async (req, res, next) => {
+    try {
+      const refreshToken = req.cookies.refreshToken
+      if (!refreshToken) {
+        return res.status(401).json('no refresh token in header')
+      }
+
+      const payload = JwtConfig.verifyToken(refreshToken)
+
+      const redisKey = `${AuthKeyEnum.REFRESH}.${payload.id}`
+
+      let auth = await RedisConfig.get(redisKey)
+
+      if (!auth) {
+        auth = await User.findOne({
+          where: {
+            id: payload.id,
+          },
+          paranoid: false,
+        })
+      }
+
+      if (!auth) {
+        return res.status(401).json('un authorization')
+      }
+
+      RedisConfig.set(redisKey, auth)
+
+      const checkAllowedAuth = AuthUtil.checkAllowed(auth)
+      if (!checkAllowedAuth.status) {
+        return res.status(401).json(checkAllowedAuth.message)
+      }
+
+      const authResult = AuthUtil.getAuthResult(auth)
+
+      const token = AuthUtil.generateToken(authResult)
+
+      res.cookie('refreshToken', token.refreshToken, {
+        maxAge: REFRESH_TOKEN_EXP,
+      })
+
+      return res.status(200).json({ accessToken: token.accessToken })
     } catch (error) {
       next(error)
     }

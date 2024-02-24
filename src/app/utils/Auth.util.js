@@ -14,6 +14,7 @@ const AuthUtil = {
       avatar: auth.avatar,
       gender: auth.gender,
       roleCode: auth.roleCode,
+      accountBalance: auth.accountBalance,
     }
   },
 
