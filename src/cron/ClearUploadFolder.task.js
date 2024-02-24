@@ -15,7 +15,9 @@ const ClearUploadFolderTask = cron.schedule('*/30 * * * *', async () => {
       if (timeDif > 20) {
         fileRemove.push(uploadFile)
         fs.rm(path.join(uploadsFolder, uploadFile), (err) => {
-          console.log(err)
+          if (err) {
+            console.log(err)
+          }
         })
       }
     })
