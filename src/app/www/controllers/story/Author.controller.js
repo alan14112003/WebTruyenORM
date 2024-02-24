@@ -2,23 +2,18 @@ import RedisConfig from '@/config/Redis.config'
 import SequelizeConfig from '@/config/Sequelize.config'
 import slugifyConfig from '@/config/Slugify.config'
 import Author from '@/app/models/Author.model'
-
-const RedisKeyName = 'authors:'
-const REDIS_KEY = {
-  all: RedisKeyName + 'all',
-  get: RedisKeyName + 'get',
-}
+import AuthorKeyEnum from '@/app/enums/redis_key/AuthorKey.enum'
 
 const AuthorController = {
   all: async (req, res, next) => {
     try {
-      let authors = await RedisConfig.get(REDIS_KEY.all)
+      let authors = await RedisConfig.get(AuthorKeyEnum.ALL)
 
       if (!authors) {
         authors = await Author.findAll()
       }
 
-      RedisConfig.set(REDIS_KEY.all, authors)
+      RedisConfig.set(AuthorKeyEnum.ALL, authors)
 
       return res.status(200).json(authors)
     } catch (error) {
@@ -30,7 +25,7 @@ const AuthorController = {
     try {
       const { id } = req.params
 
-      const redisKey = `${REDIS_KEY.get}.${id}`
+      const redisKey = `${AuthorKeyEnum.GET}.${id}`
       let author = await RedisConfig.get(redisKey)
 
       if (!author) {
@@ -69,7 +64,7 @@ const AuthorController = {
         })
       }
 
-      RedisConfig.del(REDIS_KEY.all)
+      RedisConfig.del(AuthorKeyEnum.ALL)
 
       trx.commit()
       return res.status(201).json(data)
@@ -95,8 +90,8 @@ const AuthorController = {
       })
 
       if (updatedCount) {
-        RedisConfig.del(REDIS_KEY.all)
-        RedisConfig.del(`${REDIS_KEY.get}.${id}`)
+        RedisConfig.del(AuthorKeyEnum.ALL)
+        RedisConfig.del(`${AuthorKeyEnum.GET}.${id}`)
       }
 
       return res.status(200).json(updatedCount)
@@ -115,8 +110,8 @@ const AuthorController = {
       })
 
       if (deletedCount) {
-        RedisConfig.del(REDIS_KEY.all)
-        RedisConfig.del(`${REDIS_KEY.get}.${id}`)
+        RedisConfig.del(AuthorKeyEnum.ALL)
+        RedisConfig.del(`${AuthorKeyEnum.GET}.${id}`)
       }
 
       return res.status(200).json(deletedCount)

@@ -2,23 +2,18 @@ import RedisConfig from '@/config/Redis.config'
 import Category from '@/app/models/Category.model'
 import SequelizeConfig from '@/config/Sequelize.config'
 import slugifyConfig from '@/config/Slugify.config'
-
-const RedisKeyName = 'categories:'
-const REDIS_KEY = {
-  all: RedisKeyName + 'all',
-  get: RedisKeyName + 'get',
-}
+import CategoryKeyEnum from '@/app/enums/redis_key/CategoryKey.enum'
 
 const CategoryController = {
   all: async (req, res, next) => {
     try {
-      let categories = await RedisConfig.get(REDIS_KEY.all)
+      let categories = await RedisConfig.get(CategoryKeyEnum.ALL)
 
       if (!categories) {
         categories = await Category.findAll()
       }
 
-      RedisConfig.set(REDIS_KEY.all, categories)
+      RedisConfig.set(CategoryKeyEnum.ALL, categories)
 
       return res.status(200).json(categories)
     } catch (error) {
@@ -30,7 +25,7 @@ const CategoryController = {
     try {
       const { id } = req.params
 
-      const redisKey = `${REDIS_KEY.get}.${id}`
+      const redisKey = `${CategoryKeyEnum.GET}.${id}`
       let category = await RedisConfig.get(redisKey)
 
       if (!category) {
@@ -69,7 +64,7 @@ const CategoryController = {
         })
       }
 
-      RedisConfig.del(REDIS_KEY.all)
+      RedisConfig.del(CategoryKeyEnum.ALL)
 
       trx.commit()
       return res.status(201).json(data)
@@ -95,8 +90,8 @@ const CategoryController = {
       })
 
       if (updatedCount) {
-        RedisConfig.del(REDIS_KEY.all)
-        RedisConfig.del(`${REDIS_KEY.get}.${id}`)
+        RedisConfig.del(CategoryKeyEnum.ALL)
+        RedisConfig.del(`${CategoryKeyEnum.GET}.${id}`)
       }
 
       return res.status(200).json(updatedCount)
@@ -114,8 +109,8 @@ const CategoryController = {
         },
       })
       if (deletedCount) {
-        RedisConfig.del(REDIS_KEY.all)
-        RedisConfig.del(`${REDIS_KEY.get}.${id}`)
+        RedisConfig.del(CategoryKeyEnum.ALL)
+        RedisConfig.del(`${CategoryKeyEnum.GET}.${id}`)
       }
       return res.status(200).json(deletedCount)
     } catch (error) {

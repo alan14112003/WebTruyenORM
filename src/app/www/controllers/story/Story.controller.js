@@ -7,12 +7,7 @@ import CategoryStory from '@/app/models/CategoryStory.model'
 import SequelizeConfig from '@/config/Sequelize.config'
 import StoryUtil from '@/app/utils/Story.util'
 import ChapterUtil from '@/app/utils/Chapter.util'
-
-const RedisKeyName = 'stories:'
-const REDIS_KEY = {
-  all: RedisKeyName + 'all',
-  get: RedisKeyName + 'get',
-}
+import StoryKeyEnum from '@/app/enums/redis_key/StoryKey.enum'
 
 const StoryController = {
   all: async (req, res, next) => {
@@ -29,7 +24,7 @@ const StoryController = {
         order,
       } = req.query
 
-      const redisKey = `${REDIS_KEY.all}.
+      const redisKey = `${StoryKeyEnum.ALL}.
         ${perPage}.
         ${page}.
         ${type}.
@@ -77,7 +72,7 @@ const StoryController = {
       const { slugId } = req.params
       const [slug, id] = slugId.split('.-.')
 
-      const redisKey = `${REDIS_KEY.get}.${id}`
+      const redisKey = `${StoryKeyEnum.ALL}.${id}`
       let story = await RedisConfig.get(redisKey)
 
       if (!story) {
@@ -127,7 +122,7 @@ const StoryController = {
         }
       )
 
-      RedisConfig.delWithPrefix(REDIS_KEY.all)
+      RedisConfig.delWithPrefix(StoryKeyEnum.ALL)
 
       trx.commit()
       return res.status(201).json(story)
@@ -172,8 +167,8 @@ const StoryController = {
       }
 
       if (updatedCount) {
-        RedisConfig.delWithPrefix(REDIS_KEY.all)
-        RedisConfig.del(`${REDIS_KEY.get}.${id}`)
+        RedisConfig.delWithPrefix(StoryKeyEnum.ALL)
+        RedisConfig.del(`${StoryKeyEnum.GET}.${id}`)
       }
 
       await trx.commit()
@@ -197,8 +192,8 @@ const StoryController = {
       })
 
       if (deletedCount) {
-        RedisConfig.del(REDIS_KEY.all)
-        RedisConfig.del(`${REDIS_KEY.get}.${id}`)
+        RedisConfig.delWithPrefix(StoryKeyEnum.ALL)
+        RedisConfig.del(`${StoryKeyEnum.GET}.${id}`)
       }
 
       return res.status(200).json(deletedCount)
@@ -224,8 +219,8 @@ const StoryController = {
       })
 
       if (deletedCount) {
-        RedisConfig.del(REDIS_KEY.all)
-        RedisConfig.del(`${REDIS_KEY.get}.${id}`)
+        RedisConfig.del(StoryKeyEnum.ALL)
+        RedisConfig.del(`${StoryKeyEnum.GET}.${id}`)
       }
 
       return res.status(200).json(deletedCount)
@@ -275,8 +270,8 @@ const StoryController = {
       )
 
       if (updatedCount) {
-        RedisConfig.delWithPrefix(REDIS_KEY.all)
-        RedisConfig.del(`${REDIS_KEY.get}.${id}`)
+        RedisConfig.delWithPrefix(StoryKeyEnum.ALL)
+        RedisConfig.del(`${StoryKeyEnum.GET}.${id}`)
       }
 
       return res.status(200).json(updatedCount)

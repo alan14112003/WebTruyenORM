@@ -1,18 +1,13 @@
+import PermissionKeyEnum from '@/app/enums/redis_key/PermissionKey.enum'
 import Permission from '@/app/models/Permission.model'
 import PaginationUtil from '@/app/utils/Pagination.util'
 import RedisConfig from '@/config/Redis.config'
-
-const RedisKeyName = 'permissions:'
-const REDIS_KEY = {
-  all: RedisKeyName + 'all',
-  get: RedisKeyName + 'get',
-}
 
 const PermissionController = {
   all: async (req, res, next) => {
     try {
       const { perPage, page } = req.query
-      const redisKey = `${REDIS_KEY.all}.${perPage}-${page}`
+      const redisKey = `${PermissionKeyEnum.ALL}.${perPage}-${page}`
       let permissions = await RedisConfig.get(redisKey)
 
       if (!permissions) {
@@ -31,7 +26,7 @@ const PermissionController = {
     try {
       const { id } = req.params
 
-      const redisKey = `${REDIS_KEY.get}.${id}`
+      const redisKey = `${PermissionKeyEnum.GET}.${id}`
       let permission = await RedisConfig.get(redisKey)
 
       if (!permission) {
@@ -56,7 +51,7 @@ const PermissionController = {
         data = await Permission.create(body)
       }
 
-      RedisConfig.delWithPrefix(`${REDIS_KEY.all}`)
+      RedisConfig.delWithPrefix(`${PermissionKeyEnum.ALL}`)
       return res.status(201).json(data)
     } catch (error) {
       if (error.name == 'SequelizeUniqueConstraintError') {
@@ -78,7 +73,8 @@ const PermissionController = {
       })
 
       if (updatedCount) {
-        RedisConfig.del(`${REDIS_KEY.get}.${id}`)
+        RedisConfig.del(`${PermissionKeyEnum.GET}.${id}`)
+        RedisConfig.delWithPrefix(`${PermissionKeyEnum.ALL}`)
       }
 
       return res.status(200).json(updatedCount)
@@ -98,7 +94,8 @@ const PermissionController = {
       })
 
       if (deletedCount) {
-        RedisConfig.delWithPrefix(REDIS_KEY.all)
+        RedisConfig.delWithPrefix(PermissionKeyEnum.ALL)
+        RedisConfig.del(`${PermissionKeyEnum.GET}.${id}`)
       }
 
       return res.status(200).json(deletedCount)

@@ -1,19 +1,14 @@
+import RoleKeyEnum from '@/app/enums/redis_key/RoleKey.enum'
 import Role from '@/app/models/Role.model'
 import PaginationUtil from '@/app/utils/Pagination.util'
 import RedisConfig from '@/config/Redis.config'
-
-const RedisKeyName = 'roles:'
-const REDIS_KEY = {
-  all: RedisKeyName + 'all',
-  get: RedisKeyName + 'get',
-}
 
 const RoleController = {
   all: async (req, res, next) => {
     try {
       const { perPage, page } = req.query
 
-      const redisKey = `${REDIS_KEY.all}.${perPage}-${page}`
+      const redisKey = `${RoleKeyEnum.ALL}.${perPage}-${page}`
       let roles = await RedisConfig.get(redisKey)
 
       if (!roles) {
@@ -32,7 +27,7 @@ const RoleController = {
     try {
       const { id } = req.params
 
-      const redisKey = `${REDIS_KEY.get}.${id}`
+      const redisKey = `${RoleKeyEnum.GET}.${id}`
       let role = await RedisConfig.get(redisKey)
 
       if (!role) {
@@ -58,7 +53,7 @@ const RoleController = {
         data = await Role.create(body)
       }
 
-      RedisConfig.delWithPrefix(`${REDIS_KEY.all}`)
+      RedisConfig.delWithPrefix(`${RoleKeyEnum.ALL}`)
       return res.status(201).json(data)
     } catch (error) {
       next(error)
@@ -77,7 +72,8 @@ const RoleController = {
       })
 
       if (role) {
-        RedisConfig.del(`${REDIS_KEY.get}.${id}`)
+        RedisConfig.del(`${RoleKeyEnum.GET}.${id}`)
+        RedisConfig.delWithPrefix(`${RoleKeyEnum.ALL}`)
       }
 
       return res.status(200).json(role)
@@ -97,7 +93,8 @@ const RoleController = {
       })
 
       if (deletedCount) {
-        RedisConfig.delWithPrefix(REDIS_KEY.all)
+        RedisConfig.del(`${RoleKeyEnum.GET}.${id}`)
+        RedisConfig.delWithPrefix(`${RoleKeyEnum.ALL}`)
       }
 
       return res.status(200).json(deletedCount)

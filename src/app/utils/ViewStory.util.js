@@ -1,5 +1,6 @@
 import RedisConfig from '@/config/Redis.config'
 import ViewStory from '../models/ViewStory.model'
+import StoryKeyEnum from '../enums/redis_key/StoryKey.enum'
 
 const ViewStoryUtil = {
   setViewStory: async (userId, storyId, chapterId) => {
@@ -10,9 +11,11 @@ const ViewStoryUtil = {
         ChapterId: chapterId,
       },
     })
+
     if (created) {
-      RedisConfig.delWithPrefix(`stories:get.${storyId}`)
+      RedisConfig.delWithPrefix(`${StoryKeyEnum.GET}.${storyId}`)
     }
+
     return viewStory
   },
 }

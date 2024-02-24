@@ -8,12 +8,7 @@ import ChapterAccessEnum from '@/app/enums/chapter/ChapterAccess.enum'
 import PurchaseUtil from '@/app/utils/Purchase.util'
 import HistoryUtil from '@/app/utils/History.util'
 import ViewStoryUtil from '@/app/utils/ViewStory.util'
-
-const RedisKeyName = 'chapters:'
-const REDIS_KEY = {
-  all: RedisKeyName + 'all',
-  get: RedisKeyName + 'get',
-}
+import ChapterKeyEnum from '@/app/enums/redis_key/ChapterKey.enum'
 
 const ChapterController = {
   allByStoryId: async (req, res, next) => {
@@ -23,7 +18,7 @@ const ChapterController = {
 
       const [storySlug, storyId] = slugId.split('.-.')
 
-      const redisKey = `${REDIS_KEY.all}.
+      const redisKey = `${ChapterKeyEnum.ALL}.
         ${storyId}.
         ${order}.
         `
@@ -51,7 +46,7 @@ const ChapterController = {
       const { id } = req.params
       const auth = req.user
 
-      const redisKey = `${REDIS_KEY.get}.${id}`
+      const redisKey = `${ChapterKeyEnum.GET}.${id}`
       let chapter = await RedisConfig.get(redisKey)
 
       if (!chapter) {
@@ -113,7 +108,7 @@ const ChapterController = {
 
       const chapter = await Chapter.create(chapterDTO)
 
-      RedisConfig.delWithPrefix(`${REDIS_KEY.all}.
+      RedisConfig.delWithPrefix(`${ChapterKeyEnum.ALL}.
         ${chapterDTO.StoryId}.`)
 
       return res.status(201).json(chapter)
@@ -153,10 +148,10 @@ const ChapterController = {
       })
 
       if (updatedCount) {
-        RedisConfig.delWithPrefix(`${REDIS_KEY.all}.
+        RedisConfig.delWithPrefix(`${ChapterKeyEnum.ALL}.
           ${chapter.StoryId}.`)
 
-        RedisConfig.del(`${REDIS_KEY.get}.${id}`)
+        RedisConfig.del(`${ChapterKeyEnum.GET}.${id}`)
       }
 
       return res.status(200).json(updatedCount)
@@ -199,8 +194,10 @@ const ChapterController = {
       })
 
       if (deletedCount) {
-        RedisConfig.delWithPrefix(REDIS_KEY.all)
-        RedisConfig.del(`${REDIS_KEY.get}.${id}`)
+        RedisConfig.delWithPrefix(`${ChapterKeyEnum.ALL}.
+          ${chapter.StoryId}.`)
+
+        RedisConfig.del(`${ChapterKeyEnum.GET}.${id}`)
       }
 
       return res.status(200).json(deletedCount)
@@ -260,9 +257,11 @@ const ChapterController = {
       )
 
       if (updatedCount) {
-        RedisConfig.delWithPrefix(REDIS_KEY.all)
-        for (const id of ids) {
-          RedisConfig.del(`${REDIS_KEY.get}.${id}`)
+        for (const chapter of chapters) {
+          RedisConfig.delWithPrefix(`${ChapterKeyEnum.ALL}.
+          ${chapter.StoryId}.`)
+
+          RedisConfig.del(`${ChapterKeyEnum.GET}.${chapter.id}`)
         }
       }
 

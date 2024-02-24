@@ -1,3 +1,4 @@
+import AuthKeyEnum from '@/app/enums/redis_key/AuthKey.enum'
 import Chapter from '@/app/models/Chapter.model'
 import Purchase from '@/app/models/Purchase.model'
 import Story from '@/app/models/Story.model'
@@ -56,7 +57,8 @@ const PurchaseController = {
         AuthUtil.receiveMoney(chapter.Story.User, chapter.price, trx),
       ])
 
-      RedisConfig.del(`auth:id.${auth.id}`)
+      RedisConfig.del(`${AuthKeyEnum.ID}.${auth.id}`)
+      RedisConfig.del(`${AuthKeyEnum.ID}.${chapter.Story.User.id}`)
 
       trx.commit()
       return res.status(200).json('buy chapter success')

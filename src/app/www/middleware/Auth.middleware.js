@@ -1,3 +1,4 @@
+import AuthKeyEnum from '@/app/enums/redis_key/AuthKey.enum'
 import Role from '@/app/models/Role.model'
 import User from '@/app/models/User.model'
 import AuthUtil from '@/app/utils/Auth.util'
@@ -15,7 +16,7 @@ const AuthMiddleware = {
       if (!token) return res.status(401).json('un authorization')
 
       const payload = JwtConfig.verifyToken(token)
-      const redisKey = `auth:id.${payload.id}`
+      const redisKey = `${AuthKeyEnum.ID}.${payload.id}`
 
       let auth = await RedisConfig.get(redisKey)
 
