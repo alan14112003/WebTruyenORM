@@ -12,9 +12,28 @@ const UploadUtil = {
     }
   },
 
+  uploadMultipleFile: async (files, path) => {
+    return await Promise.all(
+      files.map(async (file, index) => {
+        const response = await UploadUtil.uploadSingleFile(file, path)
+        return {
+          index,
+          ...response,
+        }
+      })
+    )
+  },
+
   deleteSingleFile: async (public_id) => {
     const deleteResponse = await CloudinaryConfig.uploader.destroy(public_id)
 
+    return deleteResponse
+  },
+
+  deleteMultipleFile: async (public_ids) => {
+    const deleteResponse = await CloudinaryConfig.api.delete_resources(
+      public_ids
+    )
     return deleteResponse
   },
 }
