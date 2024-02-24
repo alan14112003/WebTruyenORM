@@ -6,6 +6,8 @@ import ChapterUtil from '@/app/utils/Chapter.util'
 import Chapter from '@/app/models/Chapter.model'
 import ChapterAccessEnum from '@/app/enums/chapter/ChapterAccess.enum'
 import PurchaseUtil from '@/app/utils/Purchase.util'
+import HistoryUtil from '@/app/utils/History.util'
+import ViewStoryUtil from '@/app/utils/ViewStory.util'
 
 const RedisKeyName = 'chapters:'
 const REDIS_KEY = {
@@ -65,6 +67,12 @@ const ChapterController = {
       }
 
       RedisConfig.set(redisKey, chapter)
+
+      // thêm vào lịch sử đọc truyện và thêm view nếu chưa có
+      await Promise.all([
+        ViewStoryUtil.setViewStory(auth.id, chapter.StoryId, chapter.id),
+        HistoryUtil.setHistoryStory(auth.id, chapter.StoryId, chapter.id),
+      ])
 
       // kiểm tra nếu chương không miễn phí
       if (chapter.isFree) {
