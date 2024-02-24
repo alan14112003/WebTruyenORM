@@ -104,12 +104,6 @@ User.belongsToMany(Chapter, {
   as: 'chapterBuy',
 })
 
-// history story
-User.belongsToMany(Chapter, {
-  through: HistoryStory,
-  as: 'historyStory',
-})
-
 // user follow
 User.belongsToMany(User, {
   through: FollowUser,
@@ -128,6 +122,11 @@ User.belongsToMany(User, {
 ViewStory.belongsTo(User)
 ViewStory.belongsTo(Story)
 ViewStory.belongsTo(Chapter)
+
+// history story
+HistoryStory.belongsTo(User)
+HistoryStory.belongsTo(Story)
+HistoryStory.belongsTo(Chapter)
 
 const Relationship = 'relationship'
 export default Relationship
