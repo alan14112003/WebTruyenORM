@@ -88,6 +88,10 @@ const StoryController = {
         })
       }
 
+      if (!story) {
+        return res.status(404).json('story not found')
+      }
+
       RedisConfig.set(redisKey, story)
 
       return res.status(200).json(story)
