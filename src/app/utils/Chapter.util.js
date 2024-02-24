@@ -80,7 +80,7 @@ const ChapterUtil = {
       },
     })
 
-    return chapterPublic ? true : false
+    return !!chapterPublic
   },
 }
 

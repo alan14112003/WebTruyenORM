@@ -253,7 +253,8 @@ const StoryController = {
         return res.status(400).json(`story is not private`)
       }
 
-      const chapterPublicExist = ChapterUtil.checkChapterPublicExist(id)
+      const chapterPublicExist = await ChapterUtil.checkChapterPublicExist(id)
+
       if (!chapterPublicExist) {
         return res.status(400).json(`must have at least 1 published chapter`)
       }

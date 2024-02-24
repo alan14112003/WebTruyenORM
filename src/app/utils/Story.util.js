@@ -184,7 +184,7 @@ const StoryUtil = {
               `(SELECT Chapter.number 
               from chapters Chapter 
               where Chapter.StoryId = Story.id 
-              and Chapter.deletedAt is not null
+              and Chapter.deletedAt is null
               and Chapter.access = ${ChapterAccessEnum.PUBLIC}
               order by Chapter.number desc
               limit 1
