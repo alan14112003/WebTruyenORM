@@ -1,7 +1,10 @@
+import { Op } from 'sequelize'
 import Story from '../models/Story.model'
 import User from '../models/User.model'
 import Chapter from '../models/Chapter.model'
 import ChapterAccessEnum from '../enums/chapter/ChapterAccess.enum'
+import RedisConfig from '@/config/Redis.config'
+import ChapterKeyEnum from '../enums/redis_key/ChapterKey.enum'
 
 const ChapterUtil = {
   /**
@@ -81,6 +84,49 @@ const ChapterUtil = {
     })
 
     return !!chapterPublic
+  },
+
+  publicChapterTask: async () => {
+    const currentTime = new Date()
+    const chapters = await Chapter.findAll({
+      where: {
+        isFree: false,
+        privateEnd: {
+          [Op.lte]: currentTime,
+        },
+        access: ChapterAccessEnum.PUBLIC,
+      },
+    })
+
+    if (!chapters) {
+      return
+    }
+
+    const chapterIds = chapters.map((chapter) => chapter.id)
+
+    const [updatedCount] = await Chapter.update(
+      {
+        isFree: true,
+      },
+      {
+        where: {
+          id: {
+            [Op.in]: chapterIds,
+          },
+        },
+      }
+    )
+
+    if (updatedCount) {
+      for (const chapter of chapters) {
+        RedisConfig.delWithPrefix(`${ChapterKeyEnum.ALL}.
+          ${chapter.StoryId}.
+          `)
+
+        RedisConfig.del(`${ChapterKeyEnum.GET}.${chapter.id}.`)
+      }
+    }
+    return chapterIds
   },
 }
 
