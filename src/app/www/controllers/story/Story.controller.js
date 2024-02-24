@@ -72,7 +72,7 @@ const StoryController = {
       const { slugId } = req.params
       const [slug, id] = slugId.split('.-.')
 
-      const redisKey = `${StoryKeyEnum.ALL}.${id}`
+      const redisKey = `${StoryKeyEnum.GET}.${id}`
       let story = await RedisConfig.get(redisKey)
 
       if (!story) {
@@ -219,7 +219,7 @@ const StoryController = {
       })
 
       if (deletedCount) {
-        RedisConfig.del(StoryKeyEnum.ALL)
+        RedisConfig.delWithPrefix(StoryKeyEnum.ALL)
         RedisConfig.del(`${StoryKeyEnum.GET}.${id}`)
       }
 
