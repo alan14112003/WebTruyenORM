@@ -1,5 +1,5 @@
 import { Server } from 'socket.io'
-import EventMessage from './Event.message'
+import EmitEvent from './Emit.event'
 
 const initSocket = (server) => {
   const io = new Server(server, {
@@ -17,7 +17,7 @@ const initSocket = (server) => {
   })
 
   // bắn sự kiện đến một user nào đó từ server
-  EventMessage.on((room, event, ...args) => {
+  EmitEvent.on((room, event, ...args) => {
     io.to(room).emit(event, ...args)
   })
 }

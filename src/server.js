@@ -5,7 +5,7 @@ import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import Router from './routes'
-import initSocket from './messages'
+import initSocket from './events'
 import Relationship from './app/models/Relationship'
 import initCron from './cron'
 
