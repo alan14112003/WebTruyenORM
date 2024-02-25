@@ -1,0 +1,50 @@
+version: '3.7'
+
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: mysql-nodejs
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: web_truyen_nodejs
+    ports:
+     - "3308:3306"  
+    volumes:
+    # Mysql
+    - db:/var/lib/mysql
+    networks: 
+      - nodejss
+
+  redis:
+    image: redis
+    container_name: redis-nodejs
+    ports:
+      - "6379:6379" # Map cổng máy chủ Redis container tới cổng máy chủ host
+    volumes:
+      - redis-data:/data # Mount một thư mục dữ liệu cho Redis container
+    networks:
+      - nodejss
+
+  web:
+    depends_on:
+      - mysql
+      - redis
+    build: ./
+    ports: 
+     - "8081:8081"
+    volumes:
+    - ./:/app
+    restart: unless-stopped
+    container_name: nodejs
+    stdin_open: true
+    tty: true
+    networks: 
+      - nodejss
+
+volumes:
+  db:
+  redis-data:
+
+networks:
+  nodejss:
