@@ -5,6 +5,7 @@ import StoryRouter from './Story.routes'
 import ChapterRouter from './Chapter.routes'
 import PurchaseRouter from './Purchase.routes'
 import CommentRouter from './Comment.routes'
+import LikeStoryRouter from './LikeStory.routes'
 
 // lấy ra bộ định tuyến
 const StoryPackageRouter = express.Router()
@@ -20,5 +21,7 @@ StoryPackageRouter.use('/chapters', ChapterRouter)
 StoryPackageRouter.use('/purchases', PurchaseRouter)
 
 StoryPackageRouter.use('/comments', CommentRouter)
+
+StoryPackageRouter.use('/like-stories', LikeStoryRouter)
 
 export default StoryPackageRouter
