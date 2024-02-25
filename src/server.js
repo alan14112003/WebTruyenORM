@@ -6,7 +6,7 @@ import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import Router from './routes'
 import initSocket from './events'
-import Relationship from './app/models/Relationship'
+import initRelationship from './app/models'
 import initCron from './cron'
 
 // Cấu hình dotenv
@@ -41,6 +41,9 @@ app.use((err, req, res, next) => {
 const server = app.listen(process.env.PORT || 80, () => {
   console.log(`Server đang chạy ở cổng ${process.env.PORT}`)
 })
+
+// mô tả các mối quan hệ
+initRelationship()
 
 // khởi động socket
 initSocket(server)
