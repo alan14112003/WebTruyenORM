@@ -5,7 +5,7 @@ const EVENT_NAME = 'message.to.room'
 
 const EmitEvent = {
   emit: (room, event, ...args) => {
-    eventEmitter.emit(EVENT_NAME, room, event, ...args)
+    return eventEmitter.emit(EVENT_NAME, room, event, ...args)
   },
 
   /**

@@ -38,6 +38,7 @@ const CommentController = {
     try {
       const auth = req.user
       const commentDTO = req.body
+      let parentComment
 
       let story = await RedisConfig.get(
         `${StoryKeyEnum.GET}.${commentDTO.StoryId}`
@@ -56,7 +57,7 @@ const CommentController = {
       }
 
       if (commentDTO.parentId) {
-        let parentComment = await RedisConfig.get(
+        parentComment = await RedisConfig.get(
           `${CommentKeyEnum.GET}.${commentDTO.parentId}`
         )
 
@@ -79,6 +80,9 @@ const CommentController = {
       await Comment.create(commentDTO)
 
       RedisConfig.delWithPrefix(`${CommentKeyEnum.ALL}.${commentDTO.StoryId}`)
+
+      // tạo notification
+      CommentUtil.pushNotification(auth, commentDTO, parentComment, story)
 
       return res.status(201).json('created')
     } catch (error) {

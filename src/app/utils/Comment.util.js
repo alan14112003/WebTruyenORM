@@ -4,6 +4,8 @@ import Story from '../models/Story.model'
 import User from '../models/User.model'
 import UserUtil from './User.util'
 import PaginationUtil from './Pagination.util'
+import NotificationUtil from './Notification.util'
+import NotificationTypeEnum from '../enums/notification/NotificationType.enum'
 
 /**
  * @param { {
@@ -107,6 +109,33 @@ const CommentUtil = {
     )
 
     return comments
+  },
+
+  pushNotification: async (authComment, comment, parentComment, story) => {
+    let content = `${authComment.fullName} đã `
+    let userReceive
+    if (comment.parentId) {
+      if (parentComment.UserId === authComment.id) return
+      content += `phản hồi bình luận của bạn`
+      userReceive = parentComment.UserId
+    } else {
+      if (story.UserId === authComment.id) return
+      content += `bình luận truyện của bạn`
+      userReceive = story.UserId
+    }
+
+    const contentNotify = NotificationUtil.createContentNotify(
+      NotificationTypeEnum.COMMENT,
+      content
+    )
+
+    contentNotify.commentId = comment.id
+
+    await NotificationUtil.createNotification(
+      contentNotify,
+      authComment.avatar,
+      userReceive
+    )
   },
 }
 

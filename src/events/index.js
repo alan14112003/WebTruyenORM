@@ -12,12 +12,14 @@ const initSocket = (server) => {
   io.on('connection', (socket) => {
     // thực hiện join vào một room cụ thể của user(mặc định)
     socket.on('join', (room) => {
-      console.log('join ', room)
+      console.log(`join room: "${room}", ${typeof room}`)
+      socket.join(room) // phải có cái này (không được xóa nó)
     })
   })
 
   // bắn sự kiện đến một user nào đó từ server
   EmitEvent.on((room, event, ...args) => {
+    console.log(`event to room: "${room}", ${typeof room}, event: "${event}"`)
     io.to(room).emit(event, ...args)
   })
 }
