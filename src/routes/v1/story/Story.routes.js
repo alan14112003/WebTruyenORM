@@ -5,13 +5,15 @@ import StoryInsertValidator from '@/app/www/validators/body/story/Insert.validat
 import StoryUpdateValidator from '@/app/www/validators/body/story/Update.validator'
 import AuthMiddleware from '@/app/www/middleware/Auth.middleware'
 import ChapterController from '@/app/www/controllers/story/Chapter.controller'
+import CommentController from '@/app/www/controllers/story/Comment.controller'
 // lấy ra bộ định tuyến
 const StoryRouter = express.Router()
 
 const PERMISSION_NAME = 'stories.'
 const PERMISSION_CODE = {
   all: PERMISSION_NAME + 'all',
-  allChapters: PERMISSION_NAME + 'all_chapters',
+  chapters: PERMISSION_NAME + 'chapters',
+  comments: PERMISSION_NAME + 'comments',
   get: PERMISSION_NAME + 'get',
   insert: PERMISSION_NAME + 'insert',
   update: PERMISSION_NAME + 'update',
@@ -67,7 +69,15 @@ StoryRouter.delete(
 // chapters
 StoryRouter.get(
   '/:slugId/chapters',
-  AuthMiddleware.checkPermission(PERMISSION_CODE.allChapters),
+  AuthMiddleware.checkPermission(PERMISSION_CODE.chapters),
   ChapterController.allByStoryId
 )
+
+// comments
+StoryRouter.get(
+  '/:slugId/comments',
+  AuthMiddleware.checkPermission(PERMISSION_CODE.comments),
+  CommentController.allByStoryId
+)
+
 export default StoryRouter
