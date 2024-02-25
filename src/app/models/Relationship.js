@@ -43,6 +43,7 @@ Comment.belongsTo(Story, {
 
 Comment.belongsTo(Comment, {
   foreignKey: 'parentId',
+  onDelete: 'CASCADE',
 })
 
 // notification
