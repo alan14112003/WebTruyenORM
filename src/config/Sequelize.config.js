@@ -1,14 +1,22 @@
 import { Sequelize } from 'sequelize'
+import { configDotenv } from 'dotenv'
 
-const SequelizeConfig = new Sequelize('webtruyen_nodejs_orm', 'root', '', {
-  host: 'localhost',
-  dialect: 'mysql',
-  logging: (...msg) => {
-    console.warn('----------SQL----------')
-    console.warn(...msg)
-    console.warn('--------END SQL--------')
-  },
-})
+configDotenv()
+
+const SequelizeConfig = new Sequelize(
+  process.env.DB_DATABASE,
+  process.env.DB_USERNAME,
+  process.env.DB_PASSWORD,
+  {
+    host: process.env.DB_HOST,
+    dialect: process.env.DB_CONNECTION,
+    logging: (...msg) => {
+      console.warn('----------SQL----------')
+      console.warn(...msg)
+      console.warn('--------END SQL--------')
+    },
+  }
+)
 
 const test = async () => {
   try {
