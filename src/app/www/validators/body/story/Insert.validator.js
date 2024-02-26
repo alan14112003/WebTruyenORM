@@ -9,7 +9,7 @@ const StoryInsertValidator = Joi.object({
     .required()
     .integer()
     .valid(...Object.keys(StoryTypeEnum.allName()).map((k) => Number(k))),
-  AuthorId: Joi.number().required(),
+  AuthorId: Joi.number(),
   categories: Joi.array().items(Joi.number().required()).required(),
 })
 
