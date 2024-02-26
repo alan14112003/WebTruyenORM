@@ -96,6 +96,7 @@ const StoryUtil = {
       authorId,
       userId,
       order,
+      key,
     },
     options
   ) => {
@@ -139,6 +140,12 @@ const StoryUtil = {
 
     if (userId) {
       storyWhere.userId = userId
+    }
+
+    if (key) {
+      storyWhere.name = {
+        [Op.like]: `%${key}%`,
+      }
     }
 
     switch (order) {

@@ -22,6 +22,7 @@ const StoryController = {
         authorId,
         userId,
         order,
+        key,
       } = req.query
 
       const redisKey = `${StoryKeyEnum.ALL}.
@@ -34,6 +35,7 @@ const StoryController = {
         ${authorId}.
         ${userId}.
         ${order}.
+        ${key}.
         `
       let stories = await RedisConfig.get(redisKey)
 
@@ -49,6 +51,7 @@ const StoryController = {
             authorId,
             userId,
             order,
+            key,
           },
           {
             moreWhere: {
