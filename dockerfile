@@ -4,4 +4,6 @@ COPY package.json .
 COPY . .
 RUN npm install
 
+RUN mkdir src/uploads
+
 CMD npm start
