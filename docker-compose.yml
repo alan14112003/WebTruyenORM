@@ -7,20 +7,20 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: 123456
-      MYSQL_DATABASE: web_truyen_nodejs
+      MYSQL_DATABASE: webtruyen_nodejs_orm
     ports:
-     - "3308:3306"  
+      - '3308:3306'
     volumes:
-    # Mysql
-    - db:/var/lib/mysql
-    networks: 
+      # Mysql
+      - db:/var/lib/mysql
+    networks:
       - nodejss
 
   redis:
     image: redis
     container_name: redis-nodejs
     ports:
-      - "6379:6379" # Map cổng máy chủ Redis container tới cổng máy chủ host
+      - '6379:6379' # Map cổng máy chủ Redis container tới cổng máy chủ host
     volumes:
       - redis-data:/data # Mount một thư mục dữ liệu cho Redis container
     networks:
@@ -31,15 +31,10 @@ services:
       - mysql
       - redis
     build: ./
-    ports: 
-     - "8081:8081"
-    volumes:
-    - ./:/app
-    restart: unless-stopped
+    ports:
+      - '8081:8081'
     container_name: nodejs
-    stdin_open: true
-    tty: true
-    networks: 
+    networks:
       - nodejss
 
 volumes:
