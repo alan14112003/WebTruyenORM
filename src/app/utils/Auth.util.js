@@ -47,7 +47,11 @@ const AuthUtil = {
     }
   },
 
-  sendActiveMail: (auth, token) => {
+  generateCode: () => {
+    return Math.floor(100000 + Math.random() * 900000)
+  },
+
+  sendActiveMail: (auth, code) => {
     const html = `
       <div class="container" style="background-color: #fff;
             border-radius: 5px;
@@ -58,26 +62,31 @@ const AuthUtil = {
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);">
         <h1 style="
                 color: #333;
-                margin-top: 0;">Kích hoạt tài khoản của bạn</h1>
-                <p>Chào ${auth.fullName}</p>
-        <p>Kích hoạt tài khoản nếu đó là bạn(có hiệu lực trong vòng 1h):</p>
-
-        <style>
-          a:hover {
-            background-color: #166fe5;
-          }
-        </style>
-        <a style="background-color: #1877f2;
-          color: white;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 5px;
-          cursor: pointer;
-          text-decoration: none"
-          href="${process.env.APP_URL}:${process.env.PORT}/v1/auth/active-email?token=${token}"
-        >
-          Kích hoạt tài khoản
-        </a>
+                margin-top: 0;">Kích hoạt tài khoản</h1>
+        <p>Chào ${auth.fullName}</p>
+        <p>Mã code để kích hoạt tài khoản là: </p>
+        <p style="font-size: 11px;
+          font-family: LucidaGrande,tahoma,verdana,arial,sans-serif;
+          padding: 14px 32px 14px 32px;
+          background-color: #f2f2f2;
+          border-left: 1px solid #ccc;
+          border-right: 1px solid #ccc;
+          border-top: 1px solid #ccc;
+          border-bottom: 1px solid #ccc;
+          text-align: center;
+          border-radius: 7px;
+          display: block;
+          border: 1px solid #1877f2;
+          background: #e7f3ff;">
+          <span style="font-size:17px;
+            font-family:Roboto;
+            font-weight:700;
+            margin-left:0px;
+            margin-right:0px"
+          >
+            ${code}
+          </span>
+        </p>
       </div>
     `
     MailConfig.sendMail({

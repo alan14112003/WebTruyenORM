@@ -9,6 +9,7 @@ import JwtConfig from '@/config/Jwt.config'
 import SequelizeConfig from '@/config/Sequelize.config'
 import RedisConfig from '@/config/Redis.config'
 import AuthKeyEnum from '@/app/enums/redis_key/AuthKey.enum'
+import UserStatusEnum from '@/app/enums/users/UserStatus.enum'
 
 const REFRESH_TOKEN_EXP = process.env.REFRESH_TOKEN_EXP
 
@@ -126,6 +127,7 @@ const AuthController = {
       }
 
       body.password = BcryptConfig.hashPass(body.password)
+      body.resetPassword = AuthUtil.generateCode()
 
       const auth = await User.create(body, {
         transaction: trx,
@@ -133,8 +135,7 @@ const AuthController = {
 
       const authResult = AuthUtil.getAuthResult(auth)
 
-      const activeMailToken = JwtConfig.createToken(authResult, '1h')
-      AuthUtil.sendActiveMail(authResult, activeMailToken)
+      AuthUtil.sendActiveMail(authResult, body.resetPassword)
 
       trx.commit()
       return res.status(201).json(authResult)
@@ -145,26 +146,38 @@ const AuthController = {
   },
 
   activeEmail: async (req, res, next) => {
-    const { token } = req.query
-
     try {
-      const payload = JwtConfig.verifyToken(token)
-      const auth = await User.findByPk(payload.id)
+      const { code, email } = req.body
 
-      if (!auth) {
-        return res.status(401).send('account is blocked')
+      const user = await User.findOne({
+        where: {
+          email: email,
+        },
+        paranoid: false,
+      })
+
+      if (!user) {
+        return res.status(401).json('account by email is not exist')
       }
 
-      if (!auth.status) {
-        auth.status = true
-        await auth.save()
+      if (code !== user.resetPassword) {
+        return res.status(400).json('code not match')
       }
+
+      await User.update(
+        {
+          resetPassword: null,
+          status: UserStatusEnum.CONFIRMED,
+        },
+        {
+          where: {
+            id: user.id,
+          },
+        }
+      )
 
       return res.status(200).send('email has been activated')
     } catch (error) {
-      if (error.message == 'jwt expired') {
-        return res.status(401).json('token expired')
-      }
       next(error)
     }
   },
@@ -183,7 +196,7 @@ const AuthController = {
         return res.status(401).json('account by email is not exist')
       }
 
-      const resetCode = Math.floor(100000 + Math.random() * 900000)
+      const resetCode = AuthUtil.generateCode()
       user.resetPassword = resetCode
       await user.save()
 

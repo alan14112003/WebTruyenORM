@@ -38,7 +38,7 @@ AuthRouter.post(
   AuthController.changeInfo
 )
 
-AuthRouter.get('/active-email', AuthController.activeEmail)
+AuthRouter.post('/active-email', AuthController.activeEmail)
 
 AuthRouter.post('/refresh', AuthController.refresh)
 
