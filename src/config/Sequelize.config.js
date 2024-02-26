@@ -14,7 +14,7 @@ const test = async () => {
   try {
     await SequelizeConfig.authenticate()
 
-    // await SequelizeConfig.sync({ alter: true })
+    await SequelizeConfig.sync({ alter: true })
     console.log('Connection has been established successfully.')
   } catch (error) {
     console.error('Unable to connect to the database:', error)
