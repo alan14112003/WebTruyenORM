@@ -21,15 +21,8 @@ const AuthMiddleware = {
       let auth = await RedisConfig.get(redisKey)
 
       if (!auth) {
-        auth = await User.findOne({
-          where: {
-            id: payload.id,
-          },
-          include: {
-            model: Role,
-            required: true,
-          },
-          paranoid: false,
+        auth = await AuthUtil.findAuthWithRole({
+          id: payload.id,
         })
       }
 
@@ -67,8 +60,7 @@ const AuthMiddleware = {
           return res.status(403).json('permissions is not exist')
         }
 
-        const permissions = JSON.parse(user.Role.permissions)
-        if (!permissions.includes(permissionCode)) {
+        if (!user.Role.permissions.includes(permissionCode)) {
           return res.status(403).json('access denied')
         }
         next()

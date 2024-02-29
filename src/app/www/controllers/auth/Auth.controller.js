@@ -18,11 +18,8 @@ const AuthController = {
     const body = req.body
 
     try {
-      const auth = await User.findOne({
-        where: {
-          email: body.email,
-        },
-        paranoid: false,
+      const auth = await AuthUtil.findAuthWithRole({
+        email: body.email,
       })
 
       if (!auth) {
@@ -60,11 +57,8 @@ const AuthController = {
     try {
       const payload = await GoogleOauth2Config.verify(body.token)
 
-      let auth = await User.findOne({
-        where: {
-          email: payload.email,
-        },
-        paranoid: false,
+      let auth = await AuthUtil.findAuthWithRole({
+        email: payload.email,
       })
 
       if (!auth) {
@@ -133,12 +127,10 @@ const AuthController = {
         transaction: trx,
       })
 
-      const authResult = AuthUtil.getAuthResult(auth)
-
-      AuthUtil.sendActiveMail(authResult, body.resetPassword)
+      AuthUtil.sendActiveMail(auth, body.resetPassword)
 
       trx.commit()
-      return res.status(201).json(authResult)
+      return res.status(201).json('success')
     } catch (error) {
       trx.rollback()
       next(error)
@@ -200,7 +192,7 @@ const AuthController = {
       user.resetPassword = resetCode
       await user.save()
 
-      AuthUtil.sendResetPasswordMail(AuthUtil.getAuthResult(user), resetCode)
+      AuthUtil.sendResetPasswordMail(user, resetCode)
 
       return res.status(200).send('check your email to get code please')
     } catch (error) {
@@ -312,16 +304,13 @@ const AuthController = {
 
       const payload = JwtConfig.verifyToken(refreshToken)
 
-      const redisKey = `${AuthKeyEnum.REFRESH}.${payload.id}`
+      const redisKey = `${AuthKeyEnum.ID}.${payload.id}`
 
       let auth = await RedisConfig.get(redisKey)
 
       if (!auth) {
-        auth = await User.findOne({
-          where: {
-            id: payload.id,
-          },
-          paranoid: false,
+        auth = await AuthUtil.findAuthWithRole({
+          id: payload.id,
         })
       }
 

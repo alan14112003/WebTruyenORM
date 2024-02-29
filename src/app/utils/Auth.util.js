@@ -2,8 +2,23 @@ import CloudinaryConfig from '@/config/Cloudinary.config'
 import JwtConfig from '@/config/Jwt.config'
 import MailConfig from '@/config/Mail.config'
 import User from '../models/User.model'
+import Role from '../models/Role.model'
 
 const AuthUtil = {
+  /**
+   * @param { import("sequelize").Filterable<any>["where"] } whereOption
+   */
+  findAuthWithRole: (whereOption) => {
+    return User.findOne({
+      where: whereOption,
+      include: {
+        model: Role,
+        required: true,
+      },
+      paranoid: false,
+    })
+  },
+
   getAuthResult: (auth) => {
     return {
       id: auth.id,
@@ -13,7 +28,7 @@ const AuthUtil = {
       email: auth.email,
       avatar: auth.avatar,
       gender: auth.gender,
-      roleCode: auth.roleCode,
+      permissions: auth.Role.permissions,
       accountBalance: auth.accountBalance,
     }
   },
