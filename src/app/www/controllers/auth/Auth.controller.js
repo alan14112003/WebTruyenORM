@@ -335,6 +335,9 @@ const AuthController = {
 
       return res.status(200).json({ accessToken: token.accessToken })
     } catch (error) {
+      if (error.message == 'jwt expired') {
+        return res.status(401).json('token expired')
+      }
       next(error)
     }
   },
