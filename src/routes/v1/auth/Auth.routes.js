@@ -22,7 +22,7 @@ AuthRouter.post(
 
 AuthRouter.post('/login-google', AuthController.loginWithGoogle)
 
-AuthRouter.post('/request-reset-password', AuthController.requestResetPassword)
+AuthRouter.post('/request-code', AuthController.requestCode)
 AuthRouter.post('/handle-reset-password', AuthController.handleResetPassword)
 
 AuthRouter.post(

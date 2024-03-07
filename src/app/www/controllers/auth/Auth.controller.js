@@ -10,6 +10,7 @@ import SequelizeConfig from '@/config/Sequelize.config'
 import RedisConfig from '@/config/Redis.config'
 import AuthKeyEnum from '@/app/enums/redis_key/AuthKey.enum'
 import UserStatusEnum from '@/app/enums/users/UserStatus.enum'
+import RequestCodeEnum from '@/app/enums/users/RequestCode.enum'
 
 const REFRESH_TOKEN_EXP = process.env.REFRESH_TOKEN_EXP
 
@@ -174,7 +175,7 @@ const AuthController = {
     }
   },
 
-  requestResetPassword: async (req, res, next) => {
+  requestCode: async (req, res, next) => {
     const body = req.body
     try {
       const user = await User.findOne({
@@ -192,7 +193,16 @@ const AuthController = {
       user.resetPassword = resetCode
       await user.save()
 
-      AuthUtil.sendResetPasswordMail(user, resetCode)
+      switch (body.type) {
+        case RequestCodeEnum.RESET_PASS:
+          AuthUtil.sendResetPasswordMail(user, resetCode)
+          break
+        case RequestCodeEnum.ACTIVE:
+          AuthUtil.sendActiveMail(user, resetCode)
+          break
+        default:
+          break
+      }
 
       return res.status(200).send('check your email to get code please')
     } catch (error) {
