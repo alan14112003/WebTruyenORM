@@ -16,7 +16,8 @@ const client = createClient({
 
 const RedisConfig = {
   get: async (key) => {
-    const data = await (await client).get(key)
+    const redisClient = await client
+    const data = await redisClient.get(key)
     if (!data) {
       return data
     }
@@ -27,23 +28,26 @@ const RedisConfig = {
    * @param { import("redis").SetOptions } options
    */
   set: async (key, value, options = null) => {
+    const redisClient = await client
+    const ttl = options && options.EX ? options.EX : 3600
+
     return value
-      ? (await client).set(key, JSON.stringify(value), {
-          EX: 3600,
+      ? redisClient.set(key, JSON.stringify(value), {
+          EX: ttl,
           ...options,
         })
       : value
   },
 
   del: async (key) => {
-    return await (await client).del(key)
+    const redisClient = await client
+    return await redisClient.del(key)
   },
 
   delWithPrefix: async (prefix) => {
+    const redisClient = await client
     let count = 0
-    const { keys } = await (
-      await client
-    ).scan(0, {
+    const { keys } = await redisClient.scan(0, {
       MATCH: `${prefix}*`,
     })
 
@@ -56,6 +60,16 @@ const RedisConfig = {
     )
 
     return count
+  },
+
+  /**
+   * Lấy thời gian sống của khoá
+   * @param {string} key Khoá
+   * @returns {Promise<number>} Thời gian sống còn lại của khoá (tính bằng giây)
+   */
+  ttl: async (key) => {
+    const redisClient = await client
+    return redisClient.ttl(key)
   },
 }
 
