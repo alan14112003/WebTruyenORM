@@ -11,6 +11,8 @@ import RedisConfig from '@/config/Redis.config'
 import AuthKeyEnum from '@/app/enums/redis_key/AuthKey.enum'
 import UserStatusEnum from '@/app/enums/users/UserStatus.enum'
 import RequestCodeEnum from '@/app/enums/users/RequestCode.enum'
+import AuthCodeEnum from '@/app/enums/response_code/auth/AuthCode.enum'
+import StatusCodeEnum from '@/app/enums/response_code/notification/StatusCode.enum'
 
 const REFRESH_TOKEN_EXP = process.env.REFRESH_TOKEN_EXP
 
@@ -24,11 +26,17 @@ const AuthController = {
       })
 
       if (!auth) {
-        return res.status(401).json('invalid email or password')
+        return res.status(401).json({
+          code: AuthCodeEnum.invalidLogin,
+          message: 'invalid email or password',
+        })
       }
 
       if (!BcryptConfig.comparePass(body.password, auth.password)) {
-        return res.status(401).json('invalid email or password')
+        return res.status(401).json({
+          code: AuthCodeEnum.invalidLogin,
+          message: 'invalid email or password',
+        })
       }
 
       const checkAllowedAuth = AuthUtil.checkAllowed(auth)
@@ -118,7 +126,10 @@ const AuthController = {
       })
 
       if (userExist) {
-        return res.status(409).json('the account by email is exist')
+        return res.status(409).json({
+          code: AuthCodeEnum.account.exist,
+          message: 'the account by email is exist',
+        })
       }
 
       body.password = BcryptConfig.hashPass(body.password)
@@ -131,7 +142,10 @@ const AuthController = {
       AuthUtil.sendActiveMail(auth, body.resetPassword)
 
       trx.commit()
-      return res.status(201).json('success')
+      return res.status(201).json({
+        code: AuthCodeEnum.registerSuccess,
+        message: 'register success',
+      })
     } catch (error) {
       trx.rollback()
       next(error)
@@ -150,11 +164,17 @@ const AuthController = {
       })
 
       if (!user) {
-        return res.status(401).json('account by email is not exist')
+        return res.status(401).json({
+          code: AuthCodeEnum.account.notExist,
+          message: 'account by email is not exist',
+        })
       }
 
       if (code !== user.resetPassword) {
-        return res.status(400).json('code not match')
+        return res.status(400).json({
+          code: AuthCodeEnum.codeNotMatch,
+          message: 'code not match',
+        })
       }
 
       await User.update(
@@ -169,7 +189,10 @@ const AuthController = {
         }
       )
 
-      return res.status(200).send('email has been activated')
+      return res.status(200).json({
+        code: AuthCodeEnum.account.activated,
+        message: 'account has been activated',
+      })
     } catch (error) {
       next(error)
     }
@@ -186,7 +209,10 @@ const AuthController = {
       })
 
       if (!user) {
-        return res.status(401).json('account by email is not exist')
+        return res.status(401).json({
+          code: AuthCodeEnum.account.notExist,
+          message: 'account by email is not exist',
+        })
       }
 
       const resetCode = AuthUtil.generateCode()
@@ -204,7 +230,10 @@ const AuthController = {
           break
       }
 
-      return res.status(200).send('check your email to get code please')
+      return res.status(200).json({
+        code: AuthCodeEnum.checkEmailGetCode,
+        message: 'check your email to get code please',
+      })
     } catch (error) {
       next(error)
     }
@@ -221,11 +250,17 @@ const AuthController = {
       })
 
       if (!user) {
-        return res.status(401).json('account by email is not exist')
+        return res.status(401).json({
+          code: AuthCodeEnum.account.notExist,
+          message: 'account by email is not exist',
+        })
       }
 
       if (code !== user.resetPassword) {
-        return res.status(400).json('code not match')
+        return res.status(400).json({
+          code: AuthCodeEnum.codeNotMatch,
+          message: 'code not match',
+        })
       }
 
       await User.update(
@@ -240,7 +275,10 @@ const AuthController = {
         }
       )
 
-      return res.status(200).send('success')
+      return res.status(200).json({
+        code: StatusCodeEnum.success,
+        message: 'success',
+      })
     } catch (error) {
       next(error)
     }
@@ -252,7 +290,10 @@ const AuthController = {
       const user = req.user
 
       if (!BcryptConfig.comparePass(oldPassword, user.password)) {
-        return res.status(400).json('old password not match')
+        return res.status(400).json({
+          code: AuthCodeEnum.oldPassNotMatch,
+          message: 'old password not match',
+        })
       }
 
       await User.update(
@@ -266,7 +307,10 @@ const AuthController = {
         }
       )
 
-      return res.status(200).send('success')
+      return res.status(200).json({
+        code: StatusCodeEnum.success,
+        message: 'success',
+      })
     } catch (error) {
       next(error)
     }
@@ -289,7 +333,7 @@ const AuthController = {
         })
 
         if (userExist) {
-          return res.status(409).send('the account by email is exist')
+          return res.status(409).json('the account by email is exist')
         }
       }
 
@@ -299,7 +343,7 @@ const AuthController = {
         },
       })
 
-      return res.status(200).send('success')
+      return res.status(200).json('success')
     } catch (error) {
       next(error)
     }
@@ -309,7 +353,10 @@ const AuthController = {
     try {
       const refreshToken = req.cookies.refreshToken
       if (!refreshToken) {
-        return res.status(401).json('no refresh token in header')
+        return res.status(401).json({
+          code: AuthCodeEnum.unauthorization,
+          message: 'unauthorization',
+        })
       }
 
       const payload = JwtConfig.verifyToken(refreshToken)
@@ -325,7 +372,10 @@ const AuthController = {
       }
 
       if (!auth) {
-        return res.status(401).json('un authorization')
+        return res.status(401).json({
+          code: AuthCodeEnum.unauthorization,
+          message: 'unauthorization',
+        })
       }
 
       RedisConfig.set(redisKey, auth)
@@ -346,7 +396,10 @@ const AuthController = {
       return res.status(200).json({ accessToken: token.accessToken })
     } catch (error) {
       if (error.message == 'jwt expired') {
-        return res.status(401).json('token expired')
+        return res.status(401).json({
+          code: AuthCodeEnum.tokenExpired,
+          message: 'token expired',
+        })
       }
       next(error)
     }

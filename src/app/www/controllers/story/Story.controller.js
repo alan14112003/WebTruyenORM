@@ -8,6 +8,9 @@ import SequelizeConfig from '@/config/Sequelize.config'
 import StoryUtil from '@/app/utils/Story.util'
 import ChapterUtil from '@/app/utils/Chapter.util'
 import StoryKeyEnum from '@/app/enums/redis_key/StoryKey.enum'
+import StoryCodeEnum from '@/app/enums/response_code/story/StoryCode.enum'
+import AuthCodeEnum from '@/app/enums/response_code/auth/AuthCode.enum'
+import StatusCodeEnum from '@/app/enums/response_code/notification/StatusCode.enum'
 
 const StoryController = {
   all: async (req, res, next) => {
@@ -87,7 +90,10 @@ const StoryController = {
       }
 
       if (!story) {
-        return res.status(404).json('story not found')
+        return res.status(404).json({
+          code: StoryCodeEnum.notFound,
+          message: 'story not found',
+        })
       }
 
       RedisConfig.set(redisKey, story)
@@ -147,11 +153,17 @@ const StoryController = {
       const story = await Story.findByPk(id)
 
       if (!story) {
-        return res.status(404).json('story not found')
+        return res.status(404).json({
+          code: StoryCodeEnum.notFound,
+          message: 'story not found',
+        })
       }
 
       if (story.UserId != auth.id) {
-        return res.status(403).json('access denined')
+        return res.status(403).json({
+          code: AuthCodeEnum.accessDenined,
+          message: 'access denined',
+        })
       }
 
       if (body.name) {
@@ -175,7 +187,10 @@ const StoryController = {
       }
 
       await trx.commit()
-      return res.status(200).json('success')
+      return res.status(200).json({
+        code: StatusCodeEnum.success,
+        message: 'success',
+      })
     } catch (error) {
       await trx.rollback()
       next(error)
@@ -244,7 +259,10 @@ const StoryController = {
       })
 
       if (!story) {
-        return res.status(404).json('story not found')
+        return res.status(404).json({
+          code: StoryCodeEnum.notFound,
+          message: 'story not found',
+        })
       }
 
       if (story.UserId !== auth.id) {

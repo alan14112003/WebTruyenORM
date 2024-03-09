@@ -16,7 +16,7 @@ const transporter = nodeMailer.createTransport({
 })
 
 const MailConfig = {
-  sendMail({ mailTo, subject, html, from = 'Truyen Malan', ...more }) {
+  sendMail({ mailTo, subject, html, from = 'Truyen alan', ...more }) {
     transporter.sendMail({
       from: from,
       to: mailTo,

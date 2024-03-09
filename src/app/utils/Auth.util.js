@@ -3,6 +3,7 @@ import JwtConfig from '@/config/Jwt.config'
 import MailConfig from '@/config/Mail.config'
 import User from '../models/User.model'
 import Role from '../models/Role.model'
+import AuthCodeEnum from '../enums/response_code/auth/AuthCode.enum'
 
 const AuthUtil = {
   /**
@@ -37,14 +38,20 @@ const AuthUtil = {
     if (!auth.status) {
       return {
         status: false,
-        message: 'account is not activated',
+        message: {
+          code: AuthCodeEnum.account.notActivated,
+          message: 'account is not activated',
+        },
       }
     }
 
     if (auth.deletedAt) {
       return {
         status: false,
-        message: 'account is blocked',
+        message: {
+          code: AuthCodeEnum.account.blocked,
+          message: 'account is blocked',
+        },
       }
     }
 

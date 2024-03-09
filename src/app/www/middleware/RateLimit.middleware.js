@@ -1,14 +1,15 @@
+import StatusCodeEnum from '@/app/enums/response_code/notification/StatusCode.enum'
 import RedisConfig from '@/config/Redis.config'
 
 const RateLimitMiddleware = {
   /**
-   * 
+   *
    * @param {{
    * limit?: number
    * limitTime?: number
    * blockTime?: number
-   * }} options 
-   * 
+   * }} options
+   *
    */
   limitRequest: (options = {}) => {
     let { limit = 10, limitTime = 30, blockTime = 3600 } = options
@@ -29,7 +30,10 @@ const RateLimitMiddleware = {
 
         // Sửa: Kiểm tra nếu requestCount tồn tại và requestCount.status là false
         if (requestCount && !requestCount.status) {
-          return res.status(429).json('you are locked')
+          return res.status(429).json({
+            code: StatusCodeEnum.serverLocked,
+            message: 'you are locked',
+          })
         }
 
         // Nếu chưa có dữ liệu hoặc đã qua thời gian hạn chế, đặt lại đếm

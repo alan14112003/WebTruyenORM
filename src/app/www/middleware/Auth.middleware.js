@@ -1,6 +1,5 @@
 import AuthKeyEnum from '@/app/enums/redis_key/AuthKey.enum'
-import Role from '@/app/models/Role.model'
-import User from '@/app/models/User.model'
+import AuthCodeEnum from '@/app/enums/response_code/auth/AuthCode.enum'
 import AuthUtil from '@/app/utils/Auth.util'
 import JwtConfig from '@/config/Jwt.config'
 import RedisConfig from '@/config/Redis.config'
@@ -9,11 +8,27 @@ const AuthMiddleware = {
   checkAuth: async (req, res, next) => {
     const authorization = req.headers.authorization
     try {
-      if (!authorization) return res.status(401).json('un authorization')
+      if (!authorization)
+        return res.status(401).json({
+          code: AuthCodeEnum.unauthorization,
+          message: 'unauthorization',
+        })
 
       const [scheme, token] = authorization.split(' ')
-      if (scheme !== 'Bearer') return res.status(401).json('un authorization')
-      if (!token) return res.status(401).json('un authorization')
+
+      if (scheme !== 'Bearer') {
+        return res.status(401).json({
+          code: AuthCodeEnum.unauthorization,
+          message: 'unauthorization',
+        })
+      }
+
+      if (!token) {
+        return res.status(401).json({
+          code: AuthCodeEnum.unauthorization,
+          message: 'unauthorization',
+        })
+      }
 
       const payload = JwtConfig.verifyToken(token)
       const redisKey = `${AuthKeyEnum.ID}.${payload.id}`
@@ -27,7 +42,10 @@ const AuthMiddleware = {
       }
 
       if (!auth) {
-        return res.status(401).json('un authorization')
+        return res.status(401).json({
+          code: AuthCodeEnum.unauthorization,
+          message: 'unauthorization',
+        })
       }
 
       RedisConfig.set(redisKey, auth)
@@ -41,7 +59,10 @@ const AuthMiddleware = {
       next()
     } catch (error) {
       if (error.message == 'jwt expired') {
-        return res.status(401).json('token expired')
+        return res.status(401).json({
+          code: AuthCodeEnum.tokenExpired,
+          message: 'token expired',
+        })
       }
       console.log('error', error)
       next(error)
@@ -52,16 +73,25 @@ const AuthMiddleware = {
     return async (req, res, next) => {
       try {
         if (!req.user) {
-          return res.status(401).json('user is not exist')
+          return res.status(401).json({
+            code: AuthCodeEnum.unauthorization,
+            message: 'unauthorization',
+          })
         }
 
         const user = req.user
         if (!user.Role.permissions) {
-          return res.status(403).json('permissions is not exist')
+          return res.status(403).json({
+            code: AuthCodeEnum.unauthorization,
+            message: 'unauthorization',
+          })
         }
 
         if (!user.Role.permissions.includes(permissionCode)) {
-          return res.status(403).json('access denied')
+          return res.status(403).json({
+            code: AuthCodeEnum.accessDenined,
+            message: 'access denied',
+          })
         }
         next()
       } catch (error) {

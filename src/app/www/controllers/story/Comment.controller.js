@@ -1,5 +1,9 @@
 import CommentKeyEnum from '@/app/enums/redis_key/CommentKey.enum'
 import StoryKeyEnum from '@/app/enums/redis_key/StoryKey.enum'
+import AuthCodeEnum from '@/app/enums/response_code/auth/AuthCode.enum'
+import StatusCodeEnum from '@/app/enums/response_code/notification/StatusCode.enum'
+import CommentCodeEnum from '@/app/enums/response_code/story/CommentCode.enum'
+import StoryCodeEnum from '@/app/enums/response_code/story/StoryCode.enum'
 import Comment from '@/app/models/Comment.model'
 import Story from '@/app/models/Story.model'
 import CommentUtil from '@/app/utils/Comment.util'
@@ -53,7 +57,10 @@ const CommentController = {
       }
 
       if (!story) {
-        return res.status(400).json('story not found')
+        return res.status(400).json({
+          code: StoryCodeEnum.notFound,
+          message: 'story not found',
+        })
       }
 
       if (commentDTO.parentId) {
@@ -66,7 +73,10 @@ const CommentController = {
         }
 
         if (!parentComment) {
-          return res.status(400).json('parent comment not found')
+          return res.status(400).json({
+            code: CommentCodeEnum.parentNotFound,
+            message: 'parent comment not found',
+          })
         }
 
         RedisConfig.set(
@@ -84,7 +94,10 @@ const CommentController = {
       // tạo notification
       CommentUtil.pushNotification(auth, commentDTO, parentComment, story)
 
-      return res.status(201).json('created')
+      return res.status(201).json({
+        code: StatusCodeEnum.created,
+        message: 'created',
+      })
     } catch (error) {
       console.log(error)
       next(error)
@@ -103,11 +116,17 @@ const CommentController = {
       }
 
       if (!comment) {
-        return res.status(400).json('comment not found')
+        return res.status(400).json({
+          code: StatusCodeEnum.notFound,
+          message: 'not found',
+        })
       }
 
       if (auth.id !== comment.UserId) {
-        return res.status(403).json('access denined')
+        return res.status(403).json({
+          code: AuthCodeEnum.accessDenined,
+          message: 'access denined',
+        })
       }
 
       const [updatedCount] = await Comment.update(commentDTO, {
@@ -139,11 +158,17 @@ const CommentController = {
       }
 
       if (!comment) {
-        return res.status(400).json('comment not found')
+        return res.status(400).json({
+          code: StatusCodeEnum.notFound,
+          message: 'not found',
+        })
       }
 
       if (auth.id !== comment.UserId) {
-        return res.status(403).json('access denined')
+        return res.status(403).json({
+          code: AuthCodeEnum.accessDenined,
+          message: 'access denined',
+        })
       }
 
       const deletedCount = await Comment.destroy({

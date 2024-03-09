@@ -9,6 +9,10 @@ import PurchaseUtil from '@/app/utils/Purchase.util'
 import HistoryUtil from '@/app/utils/History.util'
 import ViewStoryUtil from '@/app/utils/ViewStory.util'
 import ChapterKeyEnum from '@/app/enums/redis_key/ChapterKey.enum'
+import StatusCodeEnum from '@/app/enums/response_code/notification/StatusCode.enum'
+import ChapterCodeEnum from '@/app/enums/response_code/story/ChapterCode.enum'
+import AuthCodeEnum from '@/app/enums/response_code/auth/AuthCode.enum'
+import StoryCodeEnum from '@/app/enums/response_code/story/StoryCode.enum'
 
 const ChapterController = {
   allByStoryId: async (req, res, next) => {
@@ -58,7 +62,10 @@ const ChapterController = {
       }
 
       if (!chapter) {
-        return res.status(404).json('not found')
+        return res.status(404).json({
+          code: StatusCodeEnum.notFound,
+          message: 'not found',
+        })
       }
 
       RedisConfig.set(redisKey, chapter)
@@ -78,9 +85,10 @@ const ChapterController = {
       const transaction = await PurchaseUtil.getTransaction(auth.id, chapter.id)
 
       if (!transaction) {
-        return res
-          .status(403)
-          .json('you need to purchase this chapter before watching')
+        return res.status(403).json({
+          code: ChapterCodeEnum.needPurchase,
+          message: 'you need to purchase this chapter before watching',
+        })
       }
 
       return res.status(200).json(chapter)
@@ -99,11 +107,17 @@ const ChapterController = {
 
       const story = await Story.findByPk(chapterDTO.StoryId)
       if (!story) {
-        return res.status(400).json('story not found')
+        return res.status(400).json({
+          code: StoryCodeEnum.notFound,
+          message: 'story not found',
+        })
       }
 
       if (story.UserId != auth.id) {
-        return res.status(403).json('access denined')
+        return res.status(403).json({
+          code: AuthCodeEnum.accessDenined,
+          message: 'access denined',
+        })
       }
 
       const chapter = await Chapter.create(chapterDTO)
@@ -134,11 +148,17 @@ const ChapterController = {
       })
 
       if (!chapter) {
-        return res.status(404).json('chapter not found')
+        return res.status(404).json({
+          code: StatusCodeEnum.notFound,
+          message: 'not found',
+        })
       }
 
       if (chapter.Story.UserId != auth.id) {
-        return res.status(403).json('access denined')
+        return res.status(403).json({
+          code: AuthCodeEnum.accessDenined,
+          message: 'access denined',
+        })
       }
 
       const [updatedCount] = await Chapter.update(chapterDTO, {
@@ -176,15 +196,24 @@ const ChapterController = {
       })
 
       if (!chapter) {
-        return res.status(404).json('chapter not found')
+        return res.status(404).json({
+          code: StatusCodeEnum.notFound,
+          message: 'not found',
+        })
       }
 
       if (chapter.Story.UserId != auth.id) {
-        return res.status(403).json('access denined')
+        return res.status(403).json({
+          code: AuthCodeEnum.accessDenined,
+          message: 'access denined',
+        })
       }
 
       if (chapter.access != ChapterAccessEnum.PRIVATE) {
-        return res.status(400).json('chapter is not private')
+        return res.status(400).json({
+          code: ChapterCodeEnum.notPrivate,
+          message: 'chapter is not private',
+        })
       }
 
       const deletedCount = await Chapter.destroy({
@@ -226,20 +255,25 @@ const ChapterController = {
       })
 
       if (!chapters) {
-        return res.status(400).json('chapters not found')
+        return res.status(400).json({
+          code: StatusCodeEnum.notFound,
+          message: 'not found',
+        })
       }
 
       for (const chapter of chapters) {
         if (chapter.Story.UserId !== auth.id) {
-          return res
-            .status(403)
-            .json(`access denined for chapter id: ${chapter.id}`)
+          return res.status(403).json({
+            code: AuthCodeEnum.accessDenined,
+            message: 'access denined',
+          })
         }
 
         if (chapter.access != ChapterAccessEnum.PRIVATE) {
-          return res
-            .status(400)
-            .json(`chapter id: ${chapter.id} is not private`)
+          return res.status(400).json({
+            code: ChapterCodeEnum.notPrivate,
+            message: `chapter id: ${chapter.id} is not private`,
+          })
         }
       }
 

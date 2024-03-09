@@ -1,3 +1,4 @@
+import UploadCodeEnum from '@/app/enums/response_code/util/UploadCode.enum'
 import UploadUtil from '@/app/utils/Upload.util'
 
 const UploadController = {
@@ -7,11 +8,17 @@ const UploadController = {
       const { path } = await req.body
 
       if (!file) {
-        return res.status(400).json('Please upload a file')
+        return res.status(400).json({
+          code: UploadCodeEnum.pleaseUpload,
+          message: 'please upload a file',
+        })
       }
 
       if (!path) {
-        return res.status(422).json('path is required')
+        return res.status(422).json({
+          code: UploadCodeEnum.pathRequired,
+          message: 'path is required',
+        })
       }
 
       const fileResponse = await UploadUtil.uploadSingleFile(file.path, path)
@@ -28,11 +35,17 @@ const UploadController = {
       const { path } = await req.body
 
       if (!files) {
-        return res.status(400).json('Please upload files')
+        return res.status(400).json({
+          code: UploadCodeEnum.pleaseUpload,
+          message: 'please upload a file',
+        })
       }
 
       if (!path) {
-        return res.status(422).json('path is required')
+        return res.status(422).json({
+          code: UploadCodeEnum.pathRequired,
+          message: 'path is required',
+        })
       }
 
       const fileUploads = files.map((file) => file.path)
@@ -54,7 +67,10 @@ const UploadController = {
       const { path } = await req.body
 
       if (!path) {
-        return res.status(422).json('path is required')
+        return res.status(422).json({
+          code: UploadCodeEnum.pathRequired,
+          message: 'path is required',
+        })
       }
 
       const deleted = await UploadUtil.deleteSingleFile(path)

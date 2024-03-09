@@ -1,4 +1,7 @@
 import AuthKeyEnum from '@/app/enums/redis_key/AuthKey.enum'
+import StatusCodeEnum from '@/app/enums/response_code/notification/StatusCode.enum'
+import ChapterCodeEnum from '@/app/enums/response_code/story/ChapterCode.enum'
+import PurchaseCodeEnum from '@/app/enums/response_code/story/PurchaseCode.enum'
 import Chapter from '@/app/models/Chapter.model'
 import Purchase from '@/app/models/Purchase.model'
 import Story from '@/app/models/Story.model'
@@ -35,11 +38,17 @@ const PurchaseController = {
       })
 
       if (!chapter) {
-        return res.status(400).json('chapter not found')
+        return res.status(400).json({
+          code: ChapterCodeEnum.notFound,
+          message: 'chapter not found',
+        })
       }
 
       if (chapter.price > auth.accountBalance) {
-        return res.status(400).json('the balance in the account is not enough')
+        return res.status(400).json({
+          code: PurchaseCodeEnum.balanceNotEnough,
+          message: 'the balance in the account is not enough',
+        })
       }
 
       await Promise.all([
@@ -61,7 +70,10 @@ const PurchaseController = {
       RedisConfig.del(`${AuthKeyEnum.ID}.${chapter.Story.User.id}`)
 
       trx.commit()
-      return res.status(200).json('buy chapter success')
+      return res.status(200).json({
+        code: StatusCodeEnum.success,
+        message: 'buy chapter success',
+      })
     } catch (error) {
       trx.rollback()
       console.log(error)

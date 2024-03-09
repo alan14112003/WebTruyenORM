@@ -1,5 +1,6 @@
 import LikeStoryKeyEnum from '@/app/enums/redis_key/LikeStoryKey.enum'
 import StoryKeyEnum from '@/app/enums/redis_key/StoryKey.enum'
+import StatusCodeEnum from '@/app/enums/response_code/notification/StatusCode.enum'
 import LikeStory from '@/app/models/LikeStory.model'
 import LikeStoryUtil from '@/app/utils/LikeStory.util'
 import RedisConfig from '@/config/Redis.config'
@@ -68,7 +69,10 @@ const LikeStoryController = {
 
       RedisConfig.del(`${StoryKeyEnum.GET}.${storyId}`)
 
-      return res.status(200).json('success')
+      return res.status(200).json({
+        code: StatusCodeEnum.success,
+        message: 'success',
+      })
     } catch (error) {
       console.log(error)
       next(error)

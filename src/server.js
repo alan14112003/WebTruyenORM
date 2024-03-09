@@ -8,6 +8,7 @@ import Router from './routes'
 import initSocket from './events'
 import initRelationship from './app/models'
 import initCron from './cron'
+import StatusCodeEnum from './app/enums/response_code/notification/StatusCode.enum'
 
 // Cấu hình dotenv
 configDotenv()
@@ -42,7 +43,10 @@ app.use('/', Router)
 app.use((err, req, res, next) => {
   const status = err.status || 500
 
-  return res.status(status).json(err)
+  return res.status(status).json({
+    code: StatusCodeEnum.serverError,
+    message: err,
+  })
 })
 
 // gắn nghe cho app và gán vào server
