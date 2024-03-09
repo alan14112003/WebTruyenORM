@@ -1,4 +1,4 @@
-import UserGenderEnum from '@/app/enums/users/UserGender.enum'
+import UserGenderEnum from '@/app/enums/user/UserGender.enum'
 import Joi from 'joi'
 
 const ChangeInfoValidator = Joi.object({
