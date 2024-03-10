@@ -153,13 +153,13 @@ const StoryUtil = {
         orderBy.push(['updatedAt', 'DESC'])
         break
       case 'views':
-        orderBy.push(['viewCount', 'DESC'])
+        orderBy.push([Sequelize.literal('viewCount'), 'DESC'])
         break
       case 'likes':
-        orderBy.push(['likeCount', 'DESC'])
+        orderBy.push([Sequelize.literal('likeCount'), 'DESC'])
         break
       case 'chapters':
-        orderBy.push(['lastChapter', 'DESC'])
+        orderBy.push([Sequelize.literal('lastChapter'), 'DESC'])
         break
       case 'isFull':
         orderBy.push(['isFull', 'DESC'])
@@ -167,9 +167,9 @@ const StoryUtil = {
       default:
         orderBy.push(
           ['updatedAt', 'DESC'],
-          ['viewCount', 'DESC'],
-          ['likeCount', 'DESC'],
-          ['lastChapter', 'DESC'],
+          [Sequelize.literal('viewCount'), 'DESC'],
+          [Sequelize.literal('likeCount'), 'DESC'],
+          [Sequelize.literal('lastChapter'), 'DESC'],
           ['isFull', 'DESC']
         )
         break
@@ -181,7 +181,6 @@ const StoryUtil = {
         ...categoryWhere,
         ...options.moreWhere,
       },
-      subQuery: false,
 
       attributes: {
         include: [
