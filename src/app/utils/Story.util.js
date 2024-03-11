@@ -143,9 +143,12 @@ const StoryUtil = {
     }
 
     if (key) {
-      storyWhere.name = {
-        [Op.like]: `%${key}%`,
-      }
+      const keyLst = key.split(' ')
+      const whereNames = keyLst.map((keyStr) => ({
+        name: { [Op.like]: `%${keyStr}%` },
+      }))
+
+      storyWhere[Op.and] = whereNames
     }
 
     switch (order) {
