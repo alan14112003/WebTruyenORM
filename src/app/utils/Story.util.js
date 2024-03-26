@@ -98,7 +98,7 @@ const StoryUtil = {
       order,
       key,
     },
-    options
+    options = {}
   ) => {
     const categoryWhere = {}
     const storyWhere = {}

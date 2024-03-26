@@ -11,6 +11,7 @@ const StoryRouter = express.Router()
 
 const PERMISSION_NAME = 'stories.'
 const PERMISSION_CODE = {
+  allByAuth: PERMISSION_NAME + 'all_by_auth',
   all: PERMISSION_NAME + 'all',
   chapters: PERMISSION_NAME + 'chapters',
   comments: PERMISSION_NAME + 'comments',
@@ -21,6 +22,12 @@ const PERMISSION_CODE = {
   delete: PERMISSION_NAME + 'delete',
   hardDelete: PERMISSION_NAME + 'hard_delete',
 }
+
+StoryRouter.get(
+  '/auth',
+  AuthMiddleware.checkPermission(PERMISSION_CODE.allByAuth),
+  StoryController.allByAuth
+)
 
 StoryRouter.get(
   '/',

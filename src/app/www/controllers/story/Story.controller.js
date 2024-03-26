@@ -13,6 +13,59 @@ import AuthCodeEnum from '@/app/enums/response_code/auth/AuthCode.enum'
 import StatusCodeEnum from '@/app/enums/response_code/notification/StatusCode.enum'
 
 const StoryController = {
+  allByAuth: async (req, res, next) => {
+    try {
+      const auth = req.user
+      const {
+        page,
+        perPage,
+        type,
+        isFull,
+        categoryIn,
+        categoryNotIn,
+        authorId,
+        order,
+        key,
+      } = req.query
+
+      const redisKey = `${StoryKeyEnum.ALL_BY_AUTH}.
+        ${auth.id}.
+        ${perPage}.
+        ${page}.
+        ${type}.
+        ${isFull}.
+        ${categoryIn}.
+        ${categoryNotIn}.
+        ${authorId}.
+        ${order}.
+        ${key}.
+        `
+      let stories = await RedisConfig.get(redisKey)
+
+      if (!stories) {
+        stories = await StoryUtil.getAllStories({
+          page,
+          perPage,
+          type,
+          isFull,
+          categoryIn,
+          categoryNotIn,
+          authorId,
+          userId: auth.id,
+          order,
+          key,
+        })
+      }
+
+      RedisConfig.set(redisKey, stories)
+
+      return res.status(200).json(stories)
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+  },
+
   all: async (req, res, next) => {
     try {
       const {
