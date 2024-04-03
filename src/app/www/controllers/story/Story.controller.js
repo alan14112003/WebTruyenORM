@@ -126,6 +126,39 @@ const StoryController = {
     }
   },
 
+  getByAuth: async (req, res, next) => {
+    try {
+      const { slugId } = req.params
+      const [slug, id] = slugId.split('.-.')
+      const auth = req.user
+
+      const redisKey = `${StoryKeyEnum.GET}.${id}`
+      let story = await RedisConfig.get(redisKey)
+
+      if (!story) {
+        story = await StoryUtil.getOneStory(id, slug, {
+          moreWhere: {
+            UserId: auth.id,
+          },
+        })
+      }
+
+      if (!story) {
+        return res.status(404).json({
+          code: StoryCodeEnum.notFound,
+          message: 'story not found',
+        })
+      }
+
+      RedisConfig.set(redisKey, story)
+
+      return res.status(200).json(story)
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+  },
+
   get: async (req, res, next) => {
     try {
       const { slugId } = req.params
