@@ -13,6 +13,7 @@ const PERMISSION_NAME = 'stories.'
 const PERMISSION_CODE = {
   allByAuth: PERMISSION_NAME + 'all_by_auth',
   all: PERMISSION_NAME + 'all',
+  chaptersByAuth: PERMISSION_NAME + 'chapters_by_auth',
   chapters: PERMISSION_NAME + 'chapters',
   comments: PERMISSION_NAME + 'comments',
   get: PERMISSION_NAME + 'get',
@@ -27,6 +28,12 @@ StoryRouter.get(
   '/auth',
   AuthMiddleware.checkPermission(PERMISSION_CODE.allByAuth),
   StoryController.allByAuth
+)
+
+StoryRouter.get(
+  '/auth/:slugId/chapters',
+  AuthMiddleware.checkPermission(PERMISSION_CODE.chaptersByAuth),
+  ChapterController.allByStoryIdAuth
 )
 
 StoryRouter.get(

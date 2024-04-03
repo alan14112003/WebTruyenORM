@@ -45,6 +45,37 @@ const ChapterController = {
     }
   },
 
+  allByStoryIdAuth: async (req, res, next) => {
+    try {
+      const { slugId } = req.params
+      const { order } = req.query
+      const auth = req.user
+
+      const [storySlug, storyId] = slugId.split('.-.')
+
+      const redisKey = `${ChapterKeyEnum.ALL_BY_AUTH}.
+        ${storyId}.
+        ${order}.
+        `
+      let chapters = await RedisConfig.get(redisKey)
+
+      if (!chapters) {
+        chapters = await ChapterUtil.getAllByStory(storyId, storySlug, order, {
+          moreWhere: {
+            '$Story.UserId$': auth.id,
+          },
+        })
+      }
+
+      RedisConfig.set(redisKey, chapters)
+
+      return res.status(200).json(chapters)
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+  },
+
   get: async (req, res, next) => {
     try {
       const { id } = req.params
