@@ -8,7 +8,14 @@ const TransactionHistory = SequelizeConfig.define(
       type: DataTypes.TINYINT,
     },
     money: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
+    },
+    code: {
+      type: DataTypes.STRING(6),
+    },
+    check: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
     },
   },
   {

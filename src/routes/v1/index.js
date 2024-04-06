@@ -10,12 +10,12 @@ const RouterV1 = express.Router()
 // giới hạn yêu cầu để chặn ddos
 RouterV1.use(RateLimitMiddleware.limitRequest())
 
+RouterV1.use(UtilPackageRouter)
 RouterV1.use(AuthPackageRouter)
 
 // những route này phải xác thực người dùng
 RouterV1.use(AuthMiddleware.checkAuth)
 
 RouterV1.use(StoryPackageRouter)
-RouterV1.use(UtilPackageRouter)
 
 export default RouterV1
