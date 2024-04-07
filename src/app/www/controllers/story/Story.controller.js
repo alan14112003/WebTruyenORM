@@ -218,6 +218,7 @@ const StoryController = {
       )
 
       RedisConfig.delWithPrefix(StoryKeyEnum.ALL)
+      RedisConfig.delWithPrefix(StoryKeyEnum.ALL_BY_AUTH)
 
       trx.commit()
       return res.status(201).json(story)
