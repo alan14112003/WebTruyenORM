@@ -15,6 +15,10 @@ const SequelizeConfig = new Sequelize(
       console.warn(...msg)
       console.warn('--------END SQL--------')
     },
+    define: {
+      charset: 'utf8',
+      collate: 'utf8_general_ci',
+    },
   }
 )
 

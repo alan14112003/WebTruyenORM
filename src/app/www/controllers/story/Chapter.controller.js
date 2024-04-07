@@ -155,6 +155,8 @@ const ChapterController = {
 
       RedisConfig.delWithPrefix(`${ChapterKeyEnum.ALL}.
         ${chapterDTO.StoryId}.`)
+      RedisConfig.delWithPrefix(`${ChapterKeyEnum.ALL_BY_AUTH}.
+        ${chapterDTO.StoryId}.`)
 
       return res.status(201).json(chapter)
     } catch (error) {
