@@ -14,10 +14,10 @@ const UploadUtil = {
 
   uploadMultipleFile: async (files, path) => {
     return await Promise.all(
-      files.map(async (file, index) => {
-        const response = await UploadUtil.uploadSingleFile(file, path)
+      files.map(async (file) => {
+        const response = await UploadUtil.uploadSingleFile(file.url, path)
         return {
-          index,
+          index: file.index,
           ...response,
         }
       })

@@ -31,8 +31,7 @@ const UploadController = {
 
   uploadMultipleFile: async (req, res, next) => {
     try {
-      const files = req.files
-      const { path } = await req.body
+      const { path, files } = await req.body
 
       if (!files) {
         return res.status(400).json({
@@ -48,12 +47,7 @@ const UploadController = {
         })
       }
 
-      const fileUploads = files.map((file) => file.path)
-
-      const fileResponse = await UploadUtil.uploadMultipleFile(
-        fileUploads,
-        path
-      )
+      const fileResponse = await UploadUtil.uploadMultipleFile(files, path)
 
       return res.status(200).json(fileResponse)
     } catch (error) {

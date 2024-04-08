@@ -40,7 +40,6 @@ UploadRouter.post(
 UploadRouter.post(
   '/multiple',
   AuthMiddleware.checkPermission(PERMISSION_CODE.multiple),
-  MulterConfig.array('files', 100),
   UploadController.uploadMultipleFile
 )
 
