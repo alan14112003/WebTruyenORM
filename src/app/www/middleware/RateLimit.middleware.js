@@ -12,7 +12,7 @@ const RateLimitMiddleware = {
    *
    */
   limitRequest: (options = {}) => {
-    let { limit = 10, limitTime = 30, blockTime = 3600 } = options
+    let { limit = 100, limitTime = 30, blockTime = 3600 } = options
 
     limitTime *= 1000
     blockTime *= 1000

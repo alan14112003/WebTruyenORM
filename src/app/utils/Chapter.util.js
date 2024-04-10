@@ -10,11 +10,15 @@ const ChapterUtil = {
   /**
    * @param { {
    * moreWhere: import("sequelize").Filterable<any>["where"],
-   * moreOptions: import("sequelize").FindAndCountOptions
+   * moreOptions: import("sequelize").FindOptions
+   * moreIncludes: import("sequelize").FindOptions<any>["include"]
    * }  } options
    */
   getAllByStory: async (storyId, storySlug, order, options) => {
     order = order == 'asc' ? order : 'desc'
+
+    // kiểm tra nếu không có options.moreIncludes thì cho nó là mảng rỗng
+    options.moreIncludes = options.moreIncludes ?? []
 
     return Chapter.findAll({
       where: {
@@ -35,6 +39,7 @@ const ChapterUtil = {
             slug: storySlug,
           },
         },
+        ...options.moreIncludes,
       ],
       attributes: {
         exclude: ['content', 'createdAt', 'updatedAt', 'deletedAt'],

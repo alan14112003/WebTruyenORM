@@ -33,6 +33,10 @@ const initRelationship = () => {
     through: Purchase,
   })
 
+  Chapter.hasMany(ViewStory, {
+    as: 'views',
+  })
+
   // comment
   Comment.belongsTo(User, {
     onDelete: 'CASCADE',

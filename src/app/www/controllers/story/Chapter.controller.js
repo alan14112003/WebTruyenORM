@@ -13,10 +13,12 @@ import StatusCodeEnum from '@/app/enums/response_code/notification/StatusCode.en
 import ChapterCodeEnum from '@/app/enums/response_code/story/ChapterCode.enum'
 import AuthCodeEnum from '@/app/enums/response_code/auth/AuthCode.enum'
 import StoryCodeEnum from '@/app/enums/response_code/story/StoryCode.enum'
+import ViewStory from '@/app/models/ViewStory.model'
 
 const ChapterController = {
   allByStoryId: async (req, res, next) => {
     try {
+      const auth = req.user
       const { slugId } = req.params
       const { order } = req.query
 
@@ -24,6 +26,7 @@ const ChapterController = {
 
       const redisKey = `${ChapterKeyEnum.ALL}.
         ${storyId}.
+        ${auth.id}.
         ${order}.
         `
       let chapters = await RedisConfig.get(redisKey)
@@ -33,6 +36,29 @@ const ChapterController = {
           moreWhere: {
             access: ChapterAccessEnum.PUBLIC,
           },
+          moreIncludes: [
+            // include views để cho người dùng biết là đã đọc chương nào
+            {
+              model: ViewStory,
+              as: 'views',
+              required: false,
+              where: {
+                UserId: auth.id,
+              },
+            },
+          ],
+        })
+
+        // chuyển đổi mảng views thành seen với giá trị boolean
+        chapters = JSON.parse(JSON.stringify(chapters))
+        chapters.forEach((chapter) => {
+          chapter.seen = false
+          if (chapter.views.length > 0) {
+            chapter.seen = true
+          }
+          delete chapter.views
+
+          return chapter
         })
       }
 
