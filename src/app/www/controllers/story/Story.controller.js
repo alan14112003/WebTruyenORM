@@ -353,17 +353,26 @@ const StoryController = {
       }
 
       if (story.UserId !== auth.id) {
-        return res.status(403).json(`access denined`)
+        return res.status(403).json({
+          code: StoryCodeEnum.accessDenined,
+          message: 'access denined',
+        })
       }
 
       if (story.access != StoryAccessEnum.PRIVATE) {
-        return res.status(400).json(`story is not private`)
+        return res.status(400).json({
+          code: StoryCodeEnum.notPrivate,
+          message: 'story is not private',
+        })
       }
 
       const chapterPublicExist = await ChapterUtil.checkChapterPublicExist(id)
 
       if (!chapterPublicExist) {
-        return res.status(400).json(`must have at least 1 published chapter`)
+        return res.status(400).json({
+          code: StoryCodeEnum.minChapterPublic,
+          message: 'must have at least 1 published chapter',
+        })
       }
 
       const [updatedCount] = await Story.update(
