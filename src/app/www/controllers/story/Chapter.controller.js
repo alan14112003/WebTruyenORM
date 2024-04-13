@@ -14,6 +14,7 @@ import ChapterCodeEnum from '@/app/enums/response_code/story/ChapterCode.enum'
 import AuthCodeEnum from '@/app/enums/response_code/auth/AuthCode.enum'
 import StoryCodeEnum from '@/app/enums/response_code/story/StoryCode.enum'
 import ViewStory from '@/app/models/ViewStory.model'
+import { formatRedisKey } from '@/app/utils/helper.util'
 
 const ChapterController = {
   allByStoryId: async (req, res, next) => {
@@ -24,11 +25,11 @@ const ChapterController = {
 
       const [storySlug, storyId] = slugId.split('.-.')
 
-      const redisKey = `${ChapterKeyEnum.ALL}.
+      const redisKey = formatRedisKey(`${ChapterKeyEnum.ALL}.
         ${storyId}.
         ${auth.id}.
-        ${order}.
-        `
+        ${order}
+      `)
       let chapters = await RedisConfig.get(redisKey)
 
       if (!chapters) {
@@ -79,10 +80,11 @@ const ChapterController = {
 
       const [storySlug, storyId] = slugId.split('.-.')
 
-      const redisKey = `${ChapterKeyEnum.ALL_BY_AUTH}.
-        ${storyId}.
-        ${order}.
-        `
+      const redisKey = formatRedisKey(`${ChapterKeyEnum.ALL_BY_AUTH}.
+          ${storyId}.
+          ${order}
+        `)
+
       let chapters = await RedisConfig.get(redisKey)
 
       if (!chapters) {
@@ -179,10 +181,10 @@ const ChapterController = {
 
       const chapter = await Chapter.create(chapterDTO)
 
-      RedisConfig.delWithPrefix(`${ChapterKeyEnum.ALL}.
-        ${chapterDTO.StoryId}.`)
-      RedisConfig.delWithPrefix(`${ChapterKeyEnum.ALL_BY_AUTH}.
-        ${chapterDTO.StoryId}.`)
+      RedisConfig.delWithPrefix(`${ChapterKeyEnum.ALL}.${chapterDTO.StoryId}.`)
+      RedisConfig.delWithPrefix(
+        `${ChapterKeyEnum.ALL_BY_AUTH}.${chapterDTO.StoryId}.`
+      )
 
       return res.status(201).json(chapter)
     } catch (error) {
@@ -227,8 +229,10 @@ const ChapterController = {
       })
 
       if (updatedCount) {
-        RedisConfig.delWithPrefix(`${ChapterKeyEnum.ALL}.
-          ${chapter.StoryId}.`)
+        RedisConfig.delWithPrefix(`${ChapterKeyEnum.ALL}.${chapter.StoryId}.`)
+        RedisConfig.delWithPrefix(
+          `${ChapterKeyEnum.ALL_BY_AUTH}.${chapter.StoryId}.`
+        )
 
         RedisConfig.del(`${ChapterKeyEnum.GET}.${id}`)
       }
@@ -282,8 +286,10 @@ const ChapterController = {
       })
 
       if (deletedCount) {
-        RedisConfig.delWithPrefix(`${ChapterKeyEnum.ALL}.
-          ${chapter.StoryId}.`)
+        RedisConfig.delWithPrefix(`${ChapterKeyEnum.ALL}.${chapter.StoryId}.`)
+        RedisConfig.delWithPrefix(
+          `${ChapterKeyEnum.ALL_BY_AUTH}.${chapter.StoryId}.`
+        )
 
         RedisConfig.del(`${ChapterKeyEnum.GET}.${id}`)
       }
@@ -351,8 +357,12 @@ const ChapterController = {
 
       if (updatedCount) {
         for (const chapter of chapters) {
-          RedisConfig.delWithPrefix(`${ChapterKeyEnum.ALL}.
-          ${chapter.StoryId}.`)
+          await RedisConfig.delWithPrefix(
+            `${ChapterKeyEnum.ALL}.${chapter.StoryId}.`
+          )
+          await RedisConfig.delWithPrefix(
+            `${ChapterKeyEnum.ALL_BY_AUTH}.${chapter.StoryId}.`
+          )
 
           RedisConfig.del(`${ChapterKeyEnum.GET}.${chapter.id}`)
         }

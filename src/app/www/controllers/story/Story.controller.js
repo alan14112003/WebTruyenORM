@@ -11,6 +11,7 @@ import StoryKeyEnum from '@/app/enums/redis_key/StoryKey.enum'
 import StoryCodeEnum from '@/app/enums/response_code/story/StoryCode.enum'
 import AuthCodeEnum from '@/app/enums/response_code/auth/AuthCode.enum'
 import StatusCodeEnum from '@/app/enums/response_code/notification/StatusCode.enum'
+import { formatRedisKey } from '@/app/utils/helper.util'
 
 const StoryController = {
   allByAuth: async (req, res, next) => {
@@ -28,7 +29,7 @@ const StoryController = {
         key,
       } = req.query
 
-      const redisKey = `${StoryKeyEnum.ALL_BY_AUTH}.
+      const redisKey = formatRedisKey(`${StoryKeyEnum.ALL_BY_AUTH}.
         ${auth.id}.
         ${perPage}.
         ${page}.
@@ -39,7 +40,7 @@ const StoryController = {
         ${authorId}.
         ${order}.
         ${key}.
-        `
+        `)
       let stories = await RedisConfig.get(redisKey)
 
       if (!stories) {
@@ -81,7 +82,7 @@ const StoryController = {
         key,
       } = req.query
 
-      const redisKey = `${StoryKeyEnum.ALL}.
+      const redisKey = formatRedisKey(`${StoryKeyEnum.ALL}.
         ${perPage}.
         ${page}.
         ${type}.
@@ -92,7 +93,7 @@ const StoryController = {
         ${userId}.
         ${order}.
         ${key}.
-        `
+        `)
       let stories = await RedisConfig.get(redisKey)
 
       if (!stories) {
@@ -132,7 +133,7 @@ const StoryController = {
       const [slug, id] = slugId.split('.-.')
       const auth = req.user
 
-      const redisKey = `${StoryKeyEnum.GET}.${id}`
+      const redisKey = `${StoryKeyEnum.GET_BY_AUTH}.${id}`
       let story = await RedisConfig.get(redisKey)
 
       if (!story) {
@@ -218,7 +219,6 @@ const StoryController = {
       )
 
       RedisConfig.delWithPrefix(StoryKeyEnum.ALL)
-      RedisConfig.delWithPrefix(StoryKeyEnum.ALL_BY_AUTH)
 
       trx.commit()
       return res.status(201).json(story)
@@ -271,6 +271,7 @@ const StoryController = {
       if (updatedCount) {
         RedisConfig.delWithPrefix(StoryKeyEnum.ALL)
         RedisConfig.del(`${StoryKeyEnum.GET}.${id}`)
+        RedisConfig.del(`${StoryKeyEnum.GET_BY_AUTH}.${id}`)
       }
 
       await trx.commit()
@@ -299,6 +300,7 @@ const StoryController = {
       if (deletedCount) {
         RedisConfig.delWithPrefix(StoryKeyEnum.ALL)
         RedisConfig.del(`${StoryKeyEnum.GET}.${id}`)
+        RedisConfig.del(`${StoryKeyEnum.GET_BY_AUTH}.${id}`)
       }
 
       return res.status(200).json(deletedCount)
@@ -326,6 +328,7 @@ const StoryController = {
       if (deletedCount) {
         RedisConfig.delWithPrefix(StoryKeyEnum.ALL)
         RedisConfig.del(`${StoryKeyEnum.GET}.${id}`)
+        RedisConfig.del(`${StoryKeyEnum.GET_BY_AUTH}.${id}`)
       }
 
       return res.status(200).json(deletedCount)
@@ -389,6 +392,7 @@ const StoryController = {
       if (updatedCount) {
         RedisConfig.delWithPrefix(StoryKeyEnum.ALL)
         RedisConfig.del(`${StoryKeyEnum.GET}.${id}`)
+        RedisConfig.del(`${StoryKeyEnum.GET_BY_AUTH}.${id}`)
       }
 
       return res.status(200).json(updatedCount)
