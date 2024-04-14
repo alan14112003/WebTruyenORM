@@ -14,7 +14,9 @@ import ChapterCodeEnum from '@/app/enums/response_code/story/ChapterCode.enum'
 import AuthCodeEnum from '@/app/enums/response_code/auth/AuthCode.enum'
 import StoryCodeEnum from '@/app/enums/response_code/story/StoryCode.enum'
 import ViewStory from '@/app/models/ViewStory.model'
-import { formatRedisKey } from '@/app/utils/helper.util'
+import { formatRedisKey, splitArrayIntoChunks } from '@/app/utils/helper.util'
+import StoryTypeEnum from '@/app/enums/story/StoryType.enum'
+import UploadUtil from '@/app/utils/Upload.util'
 
 const ChapterController = {
   allByStoryId: async (req, res, next) => {
@@ -157,6 +159,38 @@ const ChapterController = {
     }
   },
 
+  getByAuth: async (req, res, next) => {
+    try {
+      const { id } = req.params
+      const auth = req.user
+
+      const redisKey = `${ChapterKeyEnum.GET_BY_AUTH}.${id}`
+      let chapter = await RedisConfig.get(redisKey)
+
+      if (!chapter) {
+        chapter = await ChapterUtil.getOneChapter(id, {
+          moreWhere: {
+            '$Story.UserId$': auth.id,
+          },
+        })
+      }
+
+      if (!chapter) {
+        return res.status(404).json({
+          code: StatusCodeEnum.notFound,
+          message: 'not found',
+        })
+      }
+
+      RedisConfig.set(redisKey, chapter)
+
+      return res.status(200).json(chapter)
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+  },
+
   insert: async (req, res, next) => {
     try {
       const auth = req.user
@@ -235,6 +269,7 @@ const ChapterController = {
         )
 
         RedisConfig.del(`${ChapterKeyEnum.GET}.${id}`)
+        RedisConfig.del(`${ChapterKeyEnum.GET_BY_AUTH}.${id}`)
       }
 
       return res.status(200).json(updatedCount)
@@ -279,6 +314,25 @@ const ChapterController = {
         })
       }
 
+      // xóa ảnh trên server nếu là truyện tranh
+      if (chapter.type === StoryTypeEnum.COMIC) {
+        const publicIds = JSON.parse(chapter.content).map(
+          (item) => item.public_id
+        )
+
+        Promise.all(
+          splitArrayIntoChunks(publicIds, 100).map(
+            (ChapterImageUploadedChunk) => {
+              return UploadUtil.deleteMultipleFile(ChapterImageUploadedChunk)
+            }
+          )
+        ).then(() => {
+          console.log('-------------------------------')
+          console.log('------delete images from server success------')
+          console.log('-------------------------------')
+        })
+      }
+
       const deletedCount = await Chapter.destroy({
         where: {
           id: id,
@@ -292,6 +346,7 @@ const ChapterController = {
         )
 
         RedisConfig.del(`${ChapterKeyEnum.GET}.${id}`)
+        RedisConfig.del(`${ChapterKeyEnum.GET_BY_AUTH}.${id}`)
       }
 
       return res.status(200).json(deletedCount)
@@ -365,6 +420,7 @@ const ChapterController = {
           )
 
           RedisConfig.del(`${ChapterKeyEnum.GET}.${chapter.id}`)
+          RedisConfig.del(`${ChapterKeyEnum.GET_BY_AUTH}.${chapter.id}`)
         }
       }
 

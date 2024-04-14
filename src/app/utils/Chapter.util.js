@@ -124,11 +124,13 @@ const ChapterUtil = {
 
     if (updatedCount) {
       for (const chapter of chapters) {
-        RedisConfig.delWithPrefix(`${ChapterKeyEnum.ALL}.
-          ${chapter.StoryId}.
-          `)
+        RedisConfig.delWithPrefix(`${ChapterKeyEnum.ALL}.${chapter.StoryId}.`)
+        RedisConfig.delWithPrefix(
+          `${ChapterKeyEnum.ALL_BY_AUTH}.${chapter.StoryId}.`
+        )
 
-        RedisConfig.del(`${ChapterKeyEnum.GET}.${chapter.id}.`)
+        RedisConfig.del(`${ChapterKeyEnum.GET}.${chapter.id}`)
+        RedisConfig.del(`${ChapterKeyEnum.GET_BY_AUTH}.${chapter.id}`)
       }
     }
     return chapterIds

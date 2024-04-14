@@ -10,12 +10,19 @@ const ChapterRouter = express.Router()
 
 const PERMISSION_NAME = 'chapters.'
 const PERMISSION_CODE = {
+  getByAuth: PERMISSION_NAME + 'get_by_auth',
   get: PERMISSION_NAME + 'get',
   insert: PERMISSION_NAME + 'insert',
   public: PERMISSION_NAME + 'public',
   update: PERMISSION_NAME + 'update',
   delete: PERMISSION_NAME + 'delete',
 }
+
+ChapterRouter.get(
+  '/auth/:id',
+  AuthMiddleware.checkPermission(PERMISSION_CODE.getByAuth),
+  ChapterController.getByAuth
+)
 
 ChapterRouter.get(
   '/:id',
