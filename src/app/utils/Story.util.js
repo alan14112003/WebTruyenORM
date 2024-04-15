@@ -162,7 +162,12 @@ const StoryUtil = {
         orderBy.push([Sequelize.literal('likeCount'), 'DESC'])
         break
       case 'chapters':
-        orderBy.push([Sequelize.literal('lastChapter'), 'DESC'])
+        orderBy.push([
+          Sequelize.literal(
+            "JSON_UNQUOTE(JSON_EXTRACT(lastChapter, '$.number'))"
+          ),
+          'DESC',
+        ])
         break
       case 'isFull':
         orderBy.push(['isFull', 'DESC'])
@@ -172,7 +177,12 @@ const StoryUtil = {
           ['updatedAt', 'DESC'],
           [Sequelize.literal('viewCount'), 'DESC'],
           [Sequelize.literal('likeCount'), 'DESC'],
-          [Sequelize.literal('lastChapter'), 'DESC'],
+          [
+            Sequelize.literal(
+              "JSON_UNQUOTE(JSON_EXTRACT(lastChapter, '$.number'))"
+            ),
+            'DESC',
+          ],
           ['isFull', 'DESC']
         )
         break
@@ -190,14 +200,13 @@ const StoryUtil = {
           ...StoryUtil.includeCountsAttr(),
           [
             Sequelize.literal(
-              `(SELECT Chapter.number 
-              from chapters Chapter 
-              where Chapter.StoryId = Story.id 
-              and Chapter.deletedAt is null
-              and Chapter.access = ${ChapterAccessEnum.PUBLIC}
-              order by Chapter.number desc
-              limit 1
-              )`
+              `(SELECT JSON_OBJECT('number', Chapter.number, 'id', Chapter.id)
+                FROM chapters Chapter
+                WHERE Chapter.StoryId = Story.id
+                  AND Chapter.deletedAt IS NULL
+                  AND Chapter.access = ${ChapterAccessEnum.PUBLIC}
+                ORDER BY Chapter.number DESC
+                LIMIT 1)`
             ),
             'lastChapter',
           ],
