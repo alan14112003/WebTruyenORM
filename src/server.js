@@ -42,7 +42,7 @@ app.use('/', Router)
 // middleware bắt lỗi
 app.use((err, req, res, next) => {
   const status = err.status || 500
-
+  console.log(err)
   return res.status(status).json({
     code: StatusCodeEnum.serverError,
     message: err,
