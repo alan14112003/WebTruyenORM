@@ -131,6 +131,10 @@ const ChapterController = {
 
       RedisConfig.set(redisKey, chapter)
 
+      if (auth.id === chapter.Story.UserId) {
+        return res.status(200).json(chapter)
+      }
+
       // thêm vào lịch sử đọc truyện và thêm view nếu chưa có
       await Promise.all([
         ViewStoryUtil.setViewStory(auth.id, chapter.StoryId, chapter.id),

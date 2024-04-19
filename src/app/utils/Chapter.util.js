@@ -65,7 +65,7 @@ const ChapterUtil = {
         {
           model: Story,
           required: true,
-          attributes: [],
+          attributes: ['UserId'],
           include: {
             model: User,
             required: true,
