@@ -2,7 +2,7 @@ import StoryTypeEnum from '@/app/enums/story/StoryType.enum'
 import Joi from 'joi'
 
 const ChapterInsertValidator = Joi.object({
-  name: Joi.string().required(),
+  name: Joi.string(),
   number: Joi.number().required().min(0),
   content: Joi.string().required(),
   isFree: Joi.boolean().required(),
