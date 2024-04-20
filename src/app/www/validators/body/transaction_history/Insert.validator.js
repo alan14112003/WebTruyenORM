@@ -1,4 +1,4 @@
-import TransactionHistoryTypeEnum from '@/app/enums/transaction_history/transactionHistoryType.enum'
+import TransactionHistoryTypeEnum from '@/app/enums/transaction_history/TransactionHistoryType.enum'
 import Joi from 'joi'
 
 const TransactionHistoryInsertValidator = Joi.object({

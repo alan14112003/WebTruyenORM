@@ -11,7 +11,7 @@ const NotifyBankController = {
     try {
       const { content } = req.body
       console.log(content)
-      const regex = /\(@code@\)(.*?)\(@\/code@\)/
+      const regex = /II(.*?)OO/
 
       const matchResult = content.match(regex)
 
