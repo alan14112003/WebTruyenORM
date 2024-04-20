@@ -71,7 +71,7 @@ const PurchaseController = {
 
       trx.commit()
       return res.status(200).json({
-        code: StatusCodeEnum.success,
+        code: PurchaseCodeEnum.success,
         message: 'buy chapter success',
       })
     } catch (error) {

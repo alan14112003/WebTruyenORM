@@ -153,6 +153,7 @@ const ChapterController = {
         return res.status(403).json({
           code: ChapterCodeEnum.needPurchase,
           message: 'you need to purchase this chapter before watching',
+          price: chapter.price,
         })
       }
 

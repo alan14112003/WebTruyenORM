@@ -1,6 +1,7 @@
 function createCodeEnum(prefix) {
   return {
     balanceNotEnough: prefix + 'balance_not_enough',
+    success: prefix + 'success',
   }
 }
 
