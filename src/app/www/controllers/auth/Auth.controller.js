@@ -91,6 +91,7 @@ const AuthController = {
 
       const checkAllowedAuth = AuthUtil.checkAllowed(auth)
       if (!checkAllowedAuth.status) {
+        trx.rollback()
         return res.status(401).json(checkAllowedAuth.message)
       }
 
@@ -126,6 +127,7 @@ const AuthController = {
       })
 
       if (userExist) {
+        trx.rollback()
         return res.status(409).json({
           code: AuthCodeEnum.account.exist,
           message: 'the account by email is exist',

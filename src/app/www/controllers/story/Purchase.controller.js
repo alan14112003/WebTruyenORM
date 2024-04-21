@@ -38,6 +38,7 @@ const PurchaseController = {
       })
 
       if (!chapter) {
+        trx.rollback()
         return res.status(400).json({
           code: ChapterCodeEnum.notFound,
           message: 'chapter not found',
@@ -45,6 +46,7 @@ const PurchaseController = {
       }
 
       if (chapter.price > auth.accountBalance) {
+        trx.rollback()
         return res.status(400).json({
           code: PurchaseCodeEnum.balanceNotEnough,
           message: 'the balance in the account is not enough',

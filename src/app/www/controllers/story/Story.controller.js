@@ -240,6 +240,7 @@ const StoryController = {
       const story = await Story.findByPk(id)
 
       if (!story) {
+        trx.rollback()
         return res.status(404).json({
           code: StoryCodeEnum.notFound,
           message: 'story not found',
@@ -247,6 +248,7 @@ const StoryController = {
       }
 
       if (story.UserId != auth.id) {
+        trx.rollback()
         return res.status(403).json({
           code: AuthCodeEnum.accessDenined,
           message: 'access denined',
