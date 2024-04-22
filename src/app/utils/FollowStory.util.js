@@ -6,21 +6,21 @@ import StoryKeyEnum from '../enums/redis_key/StoryKey.enum'
 
 const FollowStoryUtil = {
   pushNotification: async (authFollow, storyId) => {
-    let content = `${authFollow.fullName} đã `
-
     let story = await RedisConfig.get(`${StoryKeyEnum.GET}.${storyId}`)
 
     if (!story) {
       story = await Story.findByPk(storyId)
     }
 
-    content += `thích truyện <b>${story.name}</b> của bạn`
+    if (authFollow.id === story.UserId) {
+      return
+    }
 
-    const contentNotify = NotificationUtil.createContentNotify(
-      NotificationTypeEnum.FOLLOW_STORY,
-      content
-    )
-    contentNotify.storyId = storyId
+    const contentNotify = {
+      type: NotificationTypeEnum.FOLLOW_STORY,
+      userName: authFollow.fullName,
+      story: story,
+    }
 
     await NotificationUtil.createNotification(
       contentNotify,

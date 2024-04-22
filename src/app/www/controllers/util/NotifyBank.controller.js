@@ -1,6 +1,5 @@
 import NotificationTypeEnum from '@/app/enums/notification/NotificationType.enum'
 import AuthKeyEnum from '@/app/enums/redis_key/AuthKey.enum'
-import UserKeyEnum from '@/app/enums/redis_key/UserKey.enum'
 import TransactionHistory from '@/app/models/TransactionHistory.model'
 import User from '@/app/models/User.model'
 import NotificationUtil from '@/app/utils/Notification.util'
@@ -51,10 +50,10 @@ const NotifyBankController = {
             await user.save()
             RedisConfig.del(`${AuthKeyEnum.ID}.${user.id}`)
 
-            const contentNotify = NotificationUtil.createContentNotify(
-              NotificationTypeEnum.TRANSACTION_HISTORY_IN,
-              'Đã xác nhận nạp tiền'
-            )
+            const contentNotify = {
+              type: NotificationTypeEnum.TRANSACTION_HISTORY_IN,
+            }
+
             NotificationUtil.createNotification(contentNotify, null, user.id)
           }
         })(),

@@ -3,13 +3,6 @@ import Notification from '../models/Notification.model'
 import NotificationEvent from '@/events/Notification.event'
 
 const NotificationUtil = {
-  createContentNotify: (type, content) => {
-    return {
-      type: type,
-      content: content,
-    }
-  },
-
   createNotification: async (contentNotify, avatar, userId) => {
     try {
       const notification = await Notification.create({

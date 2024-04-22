@@ -112,24 +112,22 @@ const CommentUtil = {
   },
 
   pushNotification: async (authComment, comment, parentComment, story) => {
-    let content = `${authComment.fullName} đã `
     let userReceive
-    if (comment.parentId) {
-      if (parentComment.UserId === authComment.id) return
-      content += `phản hồi bình luận của bạn`
-      userReceive = parentComment.UserId
-    } else {
-      if (story.UserId === authComment.id) return
-      content += `bình luận truyện của bạn`
-      userReceive = story.UserId
+    const contentNotify = {
+      userName: authComment.fullName,
+      commentId: comment.id,
+      story: story,
     }
 
-    const contentNotify = NotificationUtil.createContentNotify(
-      NotificationTypeEnum.COMMENT,
-      content
-    )
-
-    contentNotify.commentId = comment.id
+    if (comment.parentId) {
+      if (parentComment.UserId === authComment.id) return
+      userReceive = parentComment.UserId
+      contentNotify.type = NotificationTypeEnum.COMMENT_REPLY
+    } else {
+      if (story.UserId === authComment.id) return
+      userReceive = story.UserId
+      contentNotify.type = NotificationTypeEnum.COMMENT_NEW
+    }
 
     await NotificationUtil.createNotification(
       contentNotify,

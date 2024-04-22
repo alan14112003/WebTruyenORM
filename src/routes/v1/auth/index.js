@@ -4,6 +4,7 @@ import RoleRouter from './Role.routes'
 import PermissionRouter from './Permission.routes'
 import AuthRouter from './Auth.routes'
 import TransactionHistoryRouter from './TransactionHistory.routes'
+import NotificationRouter from './Notification.routes'
 // lấy ra bộ định tuyến
 const AuthPackageRouter = express.Router()
 
@@ -21,6 +22,12 @@ AuthPackageRouter.use(
   '/transaction-histories',
   AuthMiddleware.checkAuth,
   TransactionHistoryRouter
+)
+
+AuthPackageRouter.use(
+  '/notifications',
+  AuthMiddleware.checkAuth,
+  NotificationRouter
 )
 
 export default AuthPackageRouter
