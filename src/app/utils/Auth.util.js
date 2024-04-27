@@ -29,7 +29,7 @@ const AuthUtil = {
       email: auth.email,
       avatar: auth.avatar,
       gender: auth.gender,
-      permissions: auth.Role.permissions,
+      permissions: auth.Role?.permissions,
       accountBalance: auth.accountBalance,
     }
   },
