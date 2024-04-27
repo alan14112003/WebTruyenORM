@@ -18,6 +18,29 @@ const NotificationController = {
       next(error)
     }
   },
+
+  checked: async (req, res, next) => {
+    try {
+      const auth = req.user
+      const { id } = req.params
+
+      const updatedCount = await Notification.update(
+        {
+          checked: true,
+        },
+        {
+          where: {
+            UserId: auth.id,
+            id: id,
+          },
+        }
+      )
+
+      return res.status(201).json(updatedCount)
+    } catch (error) {
+      next(error)
+    }
+  },
 }
 
 export default NotificationController
