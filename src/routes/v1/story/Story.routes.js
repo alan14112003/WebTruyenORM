@@ -13,6 +13,7 @@ const PERMISSION_NAME = 'stories.'
 const PERMISSION_CODE = {
   allByAuth: PERMISSION_NAME + 'all_by_auth',
   all: PERMISSION_NAME + 'all',
+  follow: PERMISSION_NAME + 'follow',
   chaptersByAuth: PERMISSION_NAME + 'chapters_by_auth',
   chapters: PERMISSION_NAME + 'chapters',
   comments: PERMISSION_NAME + 'comments',
@@ -47,6 +48,12 @@ StoryRouter.get(
   '/',
   AuthMiddleware.checkPermission(PERMISSION_CODE.all),
   StoryController.all
+)
+
+StoryRouter.get(
+  '/follow',
+  AuthMiddleware.checkPermission(PERMISSION_CODE.follow),
+  StoryController.follow
 )
 
 StoryRouter.get(

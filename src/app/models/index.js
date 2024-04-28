@@ -63,6 +63,8 @@ const initRelationship = () => {
     through: CategoryStory,
   })
 
+  Story.hasMany(FollowStory)
+
   Story.belongsToMany(User, {
     through: FollowStory,
     as: 'follows',

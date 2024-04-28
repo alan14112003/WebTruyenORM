@@ -171,7 +171,7 @@ const AuthUtil = {
 
   purchases: async (user, price, trx) => {
     if (user.accountBalance < price) {
-      new Error('the balance in the account is not enough')
+      throw new Error('the balance in the account is not enough')
     }
 
     return await User.update(

@@ -127,6 +127,32 @@ const StoryController = {
     }
   },
 
+  follow: async (req, res, next) => {
+    try {
+      const { page, perPage } = req.query
+      const auth = req.user
+
+      const redisKey = formatRedisKey(`${StoryKeyEnum.FOLLOW}.
+        ${auth.id}.
+        ${perPage}.
+        ${page}.
+      `)
+
+      let stories = await RedisConfig.get(redisKey)
+
+      if (!stories) {
+        stories = await StoryUtil.getFollowStories(page, perPage, auth.id)
+      }
+
+      RedisConfig.set(redisKey, stories)
+
+      return res.status(200).json(stories)
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+  },
+
   getByAuth: async (req, res, next) => {
     try {
       const { slugId } = req.params

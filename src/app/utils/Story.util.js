@@ -7,6 +7,7 @@ import Author from '../models/Author.model'
 import User from '../models/User.model'
 import UserUtil from './User.util'
 import ChapterAccessEnum from '../enums/chapter/ChapterAccess.enum'
+import FollowStory from '../models/FollowStory.model'
 
 const StoryUtil = {
   /**
@@ -228,6 +229,50 @@ const StoryUtil = {
       ],
       order: orderBy,
       ...options.moreOptions,
+    })
+  },
+
+  getFollowStories: async (page, perPage, userId) => {
+    return await PaginationUtil.paginate(Story, page, perPage, {
+      attributes: {
+        include: [
+          ...StoryUtil.includeCountsAttr(),
+          [
+            Sequelize.literal(
+              `(SELECT JSON_OBJECT('number', Chapter.number, 'id', Chapter.id)
+                FROM chapters Chapter
+                WHERE Chapter.StoryId = Story.id
+                  AND Chapter.deletedAt IS NULL
+                  AND Chapter.access = ${ChapterAccessEnum.PUBLIC}
+                ORDER BY Chapter.number DESC
+                LIMIT 1)`
+            ),
+            'lastChapter',
+          ],
+        ],
+      },
+      include: [
+        {
+          model: Category,
+          required: true,
+          through: {
+            attributes: [],
+          },
+        },
+        {
+          model: User,
+          required: true,
+          attributes: [...UserUtil.getPublicInfoAttribute()],
+        },
+        {
+          model: FollowStory,
+          required: true,
+          where: {
+            UserId: userId,
+          },
+          attributes: [],
+        },
+      ],
     })
   },
 

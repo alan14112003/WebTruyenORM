@@ -4,6 +4,7 @@ function createKeyEnum(name) {
     GET_BY_AUTH: name + 'get.auth',
     ALL: name + 'all',
     GET: name + 'get',
+    FOLLOW: name + 'follow',
   }
 }
 

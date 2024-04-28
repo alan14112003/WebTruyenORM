@@ -68,6 +68,7 @@ const FollowStoryController = {
       }
 
       RedisConfig.del(`${StoryKeyEnum.GET}.${storyId}`)
+      RedisConfig.delWithPrefix(`${StoryKeyEnum.FOLLOW}.${auth.id}`)
 
       return res.status(200).json({
         code: StatusCodeEnum.success,
