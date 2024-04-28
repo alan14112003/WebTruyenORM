@@ -39,7 +39,7 @@ const StoryController = {
         ${categoryNotIn}.
         ${authorId}.
         ${order}.
-        ${key}.
+        ${key}
         `)
       let stories = await RedisConfig.get(redisKey)
 
@@ -92,7 +92,7 @@ const StoryController = {
         ${authorId}.
         ${userId}.
         ${order}.
-        ${key}.
+        ${key}
         `)
       let stories = await RedisConfig.get(redisKey)
 
@@ -135,7 +135,7 @@ const StoryController = {
       const redisKey = formatRedisKey(`${StoryKeyEnum.FOLLOW}.
         ${auth.id}.
         ${perPage}.
-        ${page}.
+        ${page}
       `)
 
       let stories = await RedisConfig.get(redisKey)
