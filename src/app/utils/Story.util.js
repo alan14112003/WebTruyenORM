@@ -61,19 +61,19 @@ const StoryUtil = {
     return [
       [
         Sequelize.literal(
-          `(SELECT count(*) from viewstories ViewStory where ViewStory.StoryId = Story.id)`
+          `(SELECT count(*) from ViewStories ViewStory where ViewStory.StoryId = Story.id)`
         ),
         'viewCount',
       ],
       [
         Sequelize.literal(
-          `(SELECT count(*) from likestories LikeStory where LikeStory.StoryId = Story.id)`
+          `(SELECT count(*) from LikeStories LikeStory where LikeStory.StoryId = Story.id)`
         ),
         'likeCount',
       ],
       [
         Sequelize.literal(
-          `(SELECT count(*) from followstories FollowStory where FollowStory.StoryId = Story.id)`
+          `(SELECT count(*) from FollowStories FollowStory where FollowStory.StoryId = Story.id)`
         ),
         'followCount',
       ],
