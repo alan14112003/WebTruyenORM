@@ -202,7 +202,7 @@ const StoryUtil = {
           [
             Sequelize.literal(
               `(SELECT JSON_OBJECT('number', Chapter.number, 'id', Chapter.id)
-                FROM chapters Chapter
+                FROM Chapters Chapter
                 WHERE Chapter.StoryId = Story.id
                   AND Chapter.deletedAt IS NULL
                   AND Chapter.access = ${ChapterAccessEnum.PUBLIC}
@@ -240,7 +240,7 @@ const StoryUtil = {
           [
             Sequelize.literal(
               `(SELECT JSON_OBJECT('number', Chapter.number, 'id', Chapter.id)
-                FROM chapters Chapter
+                FROM Chapters Chapter
                 WHERE Chapter.StoryId = Story.id
                   AND Chapter.deletedAt IS NULL
                   AND Chapter.access = ${ChapterAccessEnum.PUBLIC}
