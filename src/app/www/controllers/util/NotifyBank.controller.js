@@ -52,6 +52,7 @@ const NotifyBankController = {
 
             const contentNotify = {
               type: NotificationTypeEnum.TRANSACTION_HISTORY_IN,
+              transactionHistory: transactionHistory,
             }
 
             NotificationUtil.createNotification(contentNotify, null, user.id)
