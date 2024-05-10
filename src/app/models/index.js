@@ -68,6 +68,7 @@ const initRelationship = () => {
   Story.belongsToMany(User, {
     through: FollowStory,
     as: 'follows',
+    onDelete: 'CASCADE',
   })
 
   Story.belongsToMany(User, {
@@ -98,6 +99,7 @@ const initRelationship = () => {
   User.belongsToMany(Story, {
     through: FollowStory,
     as: 'storyFollows',
+    onDelete: 'CASCADE',
   })
 
   // story likes

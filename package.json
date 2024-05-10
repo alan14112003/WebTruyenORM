@@ -6,7 +6,8 @@
   "scripts": {
     "test": "test",
     "build": "babel src -d dist",
-    "start": "nodemon --exec babel-node src/server.js"
+    "start": "nodemon --exec babel-node src/server.js",
+    "product": "node dist/server.js"
   },
   "keywords": [
     "webtruyen",
