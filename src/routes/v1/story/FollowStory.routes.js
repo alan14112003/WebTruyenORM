@@ -24,3 +24,5 @@ FollowStoryRouter.put(
 )
 
 export default FollowStoryRouter
+
+export { PERMISSION_CODE as FollowStory_PERMISSION_CODE }

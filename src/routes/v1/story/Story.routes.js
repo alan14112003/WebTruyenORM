@@ -109,3 +109,5 @@ StoryRouter.get(
 )
 
 export default StoryRouter
+
+export { PERMISSION_CODE as Story_PERMISSION_CODE }

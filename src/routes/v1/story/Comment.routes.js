@@ -35,3 +35,5 @@ CommentRouter.delete(
 )
 
 export default CommentRouter
+
+export { PERMISSION_CODE as Comment_PERMISSION_CODE }

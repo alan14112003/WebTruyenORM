@@ -11,21 +11,19 @@ const PERMISSION_NAME = 'uploads.'
 const PERMISSION_CODE = {
   single: PERMISSION_NAME + 'single',
   multiple: PERMISSION_NAME + 'multiple',
-  destroy: {
-    single: PERMISSION_NAME + 'destroy.single',
-    multiple: PERMISSION_NAME + 'destroy.multiple',
-  },
+  destroy_single: PERMISSION_NAME + 'destroy.single',
+  destroy_multiple: PERMISSION_NAME + 'destroy.multiple',
 }
 
 UploadRouter.delete(
   '/single',
-  AuthMiddleware.checkPermission(PERMISSION_CODE.destroy.single),
+  AuthMiddleware.checkPermission(PERMISSION_CODE.destroy_single),
   UploadController.deleteSingleFile
 )
 
 UploadRouter.delete(
   '/multiple',
-  AuthMiddleware.checkPermission(PERMISSION_CODE.destroy.multiple),
+  AuthMiddleware.checkPermission(PERMISSION_CODE.destroy_multiple),
   ValidatorMiddleware.validateBody(UploadDeleteMultipleValidator),
   UploadController.deleteMultipleFile
 )
@@ -44,3 +42,5 @@ UploadRouter.post(
 )
 
 export default UploadRouter
+
+export { PERMISSION_CODE as Upload_PERMISSION_CODE }

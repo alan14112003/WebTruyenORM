@@ -49,3 +49,5 @@ AuthorRouter.delete(
 )
 
 export default AuthorRouter
+
+export { PERMISSION_CODE as Author_PERMISSION_CODE }

@@ -16,3 +16,5 @@ UserRouter.get(
 )
 
 export default UserRouter
+
+export { PERMISSION_CODE as User_PERMISSION_CODE }

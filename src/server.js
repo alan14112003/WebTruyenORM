@@ -9,6 +9,7 @@ import initSocket from './events'
 import initRelationship from './app/models'
 import initCron from './cron'
 import StatusCodeEnum from './app/enums/response_code/notification/StatusCode.enum'
+import { initDataCore } from './routes/init_permission'
 
 // Cấu hình dotenv
 configDotenv()
@@ -62,3 +63,5 @@ initSocket(server)
 
 // khởi động cronjob
 initCron()
+
+initDataCore()

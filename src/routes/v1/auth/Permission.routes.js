@@ -49,3 +49,5 @@ PermissionRouter.delete(
 )
 
 export default PermissionRouter
+
+export { PERMISSION_CODE as Permission_PERMISSION_CODE }

@@ -19,3 +19,5 @@ PurchaseRouter.post(
 )
 
 export default PurchaseRouter
+
+export { PERMISSION_CODE as Purchase_PERMISSION_CODE }

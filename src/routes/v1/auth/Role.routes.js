@@ -49,3 +49,6 @@ RoleRouter.delete(
 )
 
 export default RoleRouter
+
+
+export { PERMISSION_CODE as Role_PERMISSION_CODE }

@@ -19,3 +19,6 @@ TransactionHistoryRouter.post(
 )
 
 export default TransactionHistoryRouter
+
+
+export { PERMISSION_CODE as TransactionHistory_PERMISSION_CODE }

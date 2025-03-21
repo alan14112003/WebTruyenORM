@@ -24,3 +24,5 @@ LikeStoryRouter.put(
 )
 
 export default LikeStoryRouter
+
+export { PERMISSION_CODE as LikeStory_PERMISSION_CODE }

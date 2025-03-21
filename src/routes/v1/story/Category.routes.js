@@ -49,3 +49,5 @@ CategoryRouter.delete(
 )
 
 export default CategoryRouter
+
+export { PERMISSION_CODE as Category_PERMISSION_CODE }

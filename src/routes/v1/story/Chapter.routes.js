@@ -58,3 +58,5 @@ ChapterRouter.delete(
 )
 
 export default ChapterRouter
+
+export { PERMISSION_CODE as Chapter_PERMISSION_CODE }

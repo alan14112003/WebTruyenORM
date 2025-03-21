@@ -23,3 +23,5 @@ NotificationRouter.put(
 )
 
 export default NotificationRouter
+
+export { PERMISSION_CODE as Notification_PERMISSION_CODE }
