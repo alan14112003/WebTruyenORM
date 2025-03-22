@@ -110,7 +110,7 @@ const StoryUtil = {
       const categoryInArr = categoryIn.split(',')
       categoryWhere['id'] = {
         [Op.in]: Sequelize.literal(`(select c.StoryId
-          from categorystories c 
+          from CategoryStories c 
           where c.CategoryId in (${categoryIn})
           group by c.StoryId 
           having (count(c.CategoryId) = ${categoryInArr.length}))`),
@@ -121,7 +121,7 @@ const StoryUtil = {
       categoryWhere['id'] = {
         ...categoryWhere['id'],
         [Op.notIn]: Sequelize.literal(`(select distinct(c.StoryId)
-          from categorystories c 
+          from CategoryStories c 
           where c.CategoryId in (${categoryNotIn}))`),
       }
     }
