@@ -82,19 +82,8 @@ const StoryController = {
         key,
       } = req.query
 
-      const redisKey = formatRedisKey(`${StoryKeyEnum.ALL}.
-        ${perPage}.
-        ${page}.
-        ${type}.
-        ${isFull}.
-        ${categoryIn}.
-        ${categoryNotIn}.
-        ${authorId}.
-        ${userId}.
-        ${order}.
-        ${key}
-        `)
-      let stories = await RedisConfig.get(redisKey)
+
+      let stories
 
       if (!stories) {
         stories = await StoryUtil.getAllStories(
@@ -117,8 +106,6 @@ const StoryController = {
           }
         )
       }
-
-      RedisConfig.set(redisKey, stories)
 
       return res.status(200).json(stories)
     } catch (error) {
@@ -191,8 +178,7 @@ const StoryController = {
       const { slugId } = req.params
       const [slug, id] = slugId.split('.-.')
 
-      const redisKey = `${StoryKeyEnum.GET}.${id}`
-      let story = await RedisConfig.get(redisKey)
+      let story
 
       if (!story) {
         story = await StoryUtil.getOneStory(id, slug, {
@@ -208,8 +194,6 @@ const StoryController = {
           message: 'story not found',
         })
       }
-
-      RedisConfig.set(redisKey, story)
 
       return res.status(200).json(story)
     } catch (error) {

@@ -27,12 +27,7 @@ const ChapterController = {
 
       const [storySlug, storyId] = slugId.split('.-.')
 
-      const redisKey = formatRedisKey(`${ChapterKeyEnum.ALL}.
-        ${storyId}.
-        ${auth.id}.
-        ${order}
-      `)
-      let chapters = await RedisConfig.get(redisKey)
+      let chapters
 
       if (!chapters) {
         chapters = await ChapterUtil.getAllByStory(storyId, storySlug, order, {
@@ -64,8 +59,6 @@ const ChapterController = {
           return chapter
         })
       }
-
-      RedisConfig.set(redisKey, chapters)
 
       return res.status(200).json(chapters)
     } catch (error) {
@@ -111,8 +104,7 @@ const ChapterController = {
       const { id } = req.params
       const auth = req.user
 
-      const redisKey = `${ChapterKeyEnum.GET}.${id}`
-      let chapter = await RedisConfig.get(redisKey)
+      let chapter
 
       if (!chapter) {
         chapter = await ChapterUtil.getOneChapter(id, {
@@ -128,8 +120,6 @@ const ChapterController = {
           message: 'not found',
         })
       }
-
-      RedisConfig.set(redisKey, chapter)
 
       if (auth.id === chapter.Story.UserId) {
         return res.status(200).json(chapter)
